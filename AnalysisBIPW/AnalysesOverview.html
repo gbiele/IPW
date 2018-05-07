@@ -138,12 +138,13 @@ $(document).ready(function () {
 </div>
 <div id="compare-population-and-moba-sample" class="section level4">
 <h4>Compare population and Moba sample</h4>
-<p>The script <code>040_comp_SSBMOBAR_v9.R</code> loads statistics we received from Statistics Norway (SSB) and the multiple imputed MoBa data set and compares population and study sample with respect to mothers age, education and parity. Some imputation also needed to be performed for the SSB statistic, because some sub-population groups are so small (e.g. mothers under 25 who have multiple children) that Statistics Norway only provides the total count for a subgroup defined by age and number of children, and the count for sufficiently frequent educational levels. Therefore, the counts for thoses smallest groups were imputed by using a poisson regression where age and parity determine counts of educational levels <span class="math inline">\((N \sim age + edu + children + age*edu*children)\)</span>.</p>
+<p>The script <code>040_comp_SSBMOBAR_v9.R</code> loads statistics we received from Statistics Norway (SSB) and the multiple imputed MoBa data set and compares population and study sample with respect to mothers age, education and parity.</p>
+<p>Some imputation is also needed for the SSB statistic, because Statistics NNorway does not provide counts for subgroups with fewer than 3 members<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>. Therefore, the counts for the smallest groups were imputed by using a poisson regression where age and parity determine counts of educational levels <span class="math inline">\((N \sim age + edu + children + age*edu*children)\)</span>.</p>
 <p>The script also prepares tables and figures for the manuscript.</p>
 </div>
 <div id="calculate-inverse-probability-of-participation-weights" class="section level4">
 <h4>Calculate inverse probability of participation weights</h4>
-<p>The script <code>050_calc_IPW_2SB_v9.R</code> prepares data for the selection model, which is then used to calculate inverse probability of participation weights. The selection model and calculation of smoothed weights is performed on a cluster with the script <code>051_calc_IPW_2SB_v9_sl.R</code>. Lastly, the script <code>052_plot_check_IPWs.R</code> compares observed and predicted participation rates and plots those and the distribution of weights.</p>
+<p>The script <code>050_prep_calc_IPW_2SB_v9.R</code> prepares data for the selection model, which is then used to calculate inverse probability of participation weights. The selection model and calculation of smoothed weights is performed on a cluster with the script <code>051_calc_IPW_2SB_v9_sl.R</code>. Lastly, the script <code>052_plot_check_IPWs.R</code> compares observed and predicted participation rates and plots those and the distribution of weights.</p>
 </div>
 <div id="specify-regression-models-for-the-three-analyses" class="section level4">
 <h4>Specify regression models for the three analyses</h4>
@@ -183,6 +184,12 @@ $(document).ready(function () {
 <h4>Extract LD score regression results</h4>
 <p>The script <code>LDSR/show_rgh.R</code> collects results of LD score regressions and makes plot and tables for LD score regression results.</p>
 </div>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>For example, in 2001 122 women aged 25-29 who already had 4 or more children gave birth. Of these, 12 had either a bachelor or master’s degree. Because one of these two groups had fewer than 3 members, Statistic Norway only reported the total count for all mothers irrepsective of education, and the counts for the educational groups that were not master or bachelor.<a href="#fnref1">↩</a></p></li>
+</ol>
 </div>
 
 
