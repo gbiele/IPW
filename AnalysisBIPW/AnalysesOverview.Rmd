@@ -1,8 +1,12 @@
 ---
-title: "Overview of analysis scripts"
+title: Analysis scripts for "Bias due to self selection and loss to follow up in prospective
+  cohort studies"
 author: "Guido Biele"
 date: "7 mai 2018"
-output: html_document
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -15,8 +19,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 #### Collect MoBa and MBRN data
-```010_prep_data_v9.R```
-This script opens MoBa and MBRN files and extracts variables, i.e. exposures, outcomes and additional variables deemed to be useful for multiple imputation.
+The script ```010_prep_data_v9.R``` opens MoBa and MBRN files and extracts variables, i.e. exposures, outcomes and additional variables deemed to be useful for multiple imputation.
 
 
 #### Impute data
@@ -25,33 +28,39 @@ Imputation is performed with the package mi. The script ```020_mi.R``` prepares 
 After the multiple chained imputation process has converged (checked with visual diagnostics from the mi package and Rhat values) the multiply imputed data sets are generated with the script ```030_make_imputed_data_v9.R```, which depends on  ```031_make_imputed_data_utils.R```.
 
 #### Compare population and Moba sample
-The script ```040_comp_SSBMOBAR_v9.R``` loads statistics we received from Statistics Norway and the multiple imputed data set and compares population and study sample with respect to mothers age, education and parity.
+The script ```040_comp_SSBMOBAR_v9.R``` loads statistics we received from Statistics Norway (SSB) and the multiple imputed MoBa data set and compares population and study sample with respect to mothers age, education and parity.
 
+Some imputation is also needed for the SSB statistic, because Statistics NNorway does not provide counts for subgroups with fewer than 3 members[^1]. Therefore, the counts for the smallest groups were imputed by using a poisson regression where age and parity determine counts of educational levels $(N \sim age + edu + children + age*edu*children)$.
+
+The script also prepares tables and figures for the manuscript.
+
+[^1]: For example, in 2001 122 women aged 25-29 who already had 4 or more children gave birth. Of these, 12 had either a bachelor or master's degree. Because one of these two groups had fewer than 3 members, Statistic Norway only reported the total count for all mothers irrepsective of education, and the counts for the educational groups that were not master or bachelor.
 
 #### Calculate inverse probability of participation weights
-The script ```050_calc_IPW_2SB_v9.R``` prepares data for selection model, next used to calculate inverse probability of participation weights. The selection model and calculation of smoothed weights is performed on a cluster with the script ```051_calc_IPW_2SB_v9_sl.R```. Lastly, the script ```052_plot_check_IPWs.R``` compares observed and predicted participation rates and plots those and the distribution of weights.
+The script ```050_calc_IPW_2SB_v9.R``` prepares data for the selection model, which is then used to calculate inverse probability of participation weights. The selection model and calculation of smoothed weights is performed on a cluster with the script ```051_calc_IPW_2SB_v9_sl.R```. Lastly, the script ```052_plot_check_IPWs.R``` compares observed and predicted participation rates and plots those and the distribution of weights.
 
 
 #### Specify regression models for the three analyses
 Next we set up the regression models, i.e. we define outcome, predictors and adjustment variables for the analysis of effects of birth variables, mental health, and legal drug use on ADHD symptoms. This is done with the script ```060_analyses_2SB_v9.R```, which uses ```061_load_data_2SB_v9.R```.
 
 #### Save data for analysis with stan model
-The script ```07_rdump_data_2SB_v9.R``` saves multiply imputed predictors, outcomes and weights for analysis in Stan (20 data sets per analysis).
+The script ```07_rdump_data_2SB_v9.R``` saves multiply imputed predictors, outcomes and weights for analysis in Stan (20 data sets per analysis). Two implement a 2 stage Bayesian appraoch to inverse probability weighting that propagates uncertainty over weights into the regression model, the data included multiple weights calculate from the posterior samples of the selection model.
 
 
 #### The Stan model
 The Stan model ```Stan/bebi_logit_deltaAR_2SB.stan``` simultaneously estimates the IPW and AR models as well as the difference in regression weights. This model needs an auxiliary file ```Stan/get_iter.hpp``` with code to identify in which iteration the model currently is, because uncertainty in weights is propagated by letting weights vary between iterations of the sampling algorithm.
-The stan model also calculates average marginal effects.
+
+The stan model also calculates average marginal effects for the AR and IPW models, $AME_{IPW}$ and $AME_{AR}$  as  well as the difference of these $\delta = AME_{IPW}-AME_{AR}$.
 
 The stan model is compiled with ```Stan/compile_stanmodel.R```
 
-For each of the 3 analyses We ran 20 imputations, each with 3 chains using the script ```080_run_bebi.R```. These analysis were performed on a cluster.
+For each of the 3 analyses we ran 20 imputations, each with 3 chains using the script ```080_run_bebi.R```. This analysis was performed on a cluster.
 
 #### Checking regression model results
-The script ```090_show_rhats.R``` check Rhats (potential scale reduction factor) to insure convergence and saves combined posterior samples per analysis.
+The script ```090_show_rhats.R``` checks Rhats (potential scale reduction factor) to insure convergence and saves combined posterior samples per analysis.
 
 #### Analysis results
-The script ```100_results_bebi_logit_deltaAR_2SB.R``` extracts posterior sample of average marginal effects and calculate statistics from these. The script also prepares tables and figures.
+The script ```100_results_bebi_logit_deltaAR_2SB.R``` extracts posterior samples of average marginal effects and calculates statistics from these. The script also prepares tables and figures for the manuscript.
 
 
 ### Calculating SNP based genetic correlations 
@@ -60,7 +69,7 @@ The script ```100_results_bebi_logit_deltaAR_2SB.R``` extracts posterior sample 
 The script ```LDSR/make_LDSR_data.R``` prepares downloaded GWAS summary data for use in LD score regressions.
 
 #### Run LD score regressions
-The scripts ```LDSR/munge.bash``` implements further pre-processing, and the scripts ```LDSR/h2.bash``` and ```LDSR/rg.bash``` calculate SNP heritability estimates and all pairwise genetic correlations, respectively. Information about sample size was saved in the file var_N.txt.
+The scripts ```LDSR/munge.bash``` implements further pre-processing, and the scripts ```LDSR/h2.bash``` and ```LDSR/rg.bash``` calculate SNP heritability estimates and all pairwise genetic correlations, respectively. Information about sample size is saved in the file var_N.txt.
 
 #### Extract LD score regression results
-The file ```LDSR/show_rgh.R``` collects results of LD score regressions and makes plot and table for LD score regression results.
+The script ```LDSR/show_rgh.R``` collects results of LD score regressions and makes plot and tables for LD score regression results.
