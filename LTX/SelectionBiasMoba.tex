@@ -1,0 +1,321 @@
+\documentclass[]{article}
+
+\usepackage[margin=1in]{geometry}
+
+\usepackage{url}
+\usepackage{pgf}
+\usepackage{tikz}
+\usetikzlibrary{arrows,automata,calc}
+\usepackage{verbatim}
+\usepackage{tkz-tab}
+\usepackage{subcaption} 
+\usepackage{array}
+\newcolumntype{X}[1]{>{\centering\arraybackslash\baselineskip}p{#1}}
+\usepackage{relsize}
+
+\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
+		\node[shape=circle,draw,inner sep=2pt] (char) {#1};}}
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorinlistoftodos]{todonotes}
+
+\usepackage{caption}
+
+\usepackage{textcomp}
+
+\usepackage{multirow,makecell}
+
+\newcommand{\elstodo}[1]{%
+	\todo{\linespread{1}\tiny #1\par}%
+}
+
+%\SetWatermarkText{DRAFT - do not distribute}
+%\SetWatermarkScale{.4}
+
+\usepackage{adjustbox}
+\usepackage{setspace}
+
+\usepackage{longtable,lscape}
+
+% to rotate table
+\usepackage{rotating}
+
+\usepackage{dcolumn}
+\newcolumntype{L}{D{.}{.}{1,1}}
+
+
+
+\usepackage{csquotes}
+\usepackage[backend=bibtex,
+            style=numeric,
+            citestyle=numeric-comp,
+            sorting=none,
+            autocite=superscript]{biblatex}
+\addbibresource{references/biblio.bib}
+
+\usepackage[nofiglist,notablist]{endfloat}
+\DeclareDelayedFloatFlavor{sidewaystable}{table}
+
+\renewcommand{\baselinestretch}{2.0}
+
+%opening
+\title{Bias from Self Selection and Loss to Follow-up in Prospective Cohort Studies}
+%\shorttitle{Bias From Self Selection and Loss to Follow Up}
+\author{G. Biele \and K. Gustavson \and N. Czajkowski \and R. Nilsen \and T. Reichborn-Kjennerud \and H. Aase \and P. Magnus \and C. Stoltenberg}
+%\affiliation{Norwegian Institute of Public Health}
+
+
+\begin{document}
+
+\begin{titlepage}
+	\maketitle
+	\begin{abstract}
+		Self-selection into prospective cohort studies and loss to follow up can result in biased exposure outcome association estimates. Previous investigations suggested that bias is limited in large prospective cohort studies. The structural approach to selection bias shows that general statements about bias are not possible for studies that investigate multiple exposures and outcomes, and that inverse probability weighting (IPW) but not adjustment for participation indicators generally control bias. We propose to use LD score regression based on genome wide association study results to substantiate structural models of study participation, and to estimate bias magnitude by comparing association estimates of IPW regressions with regressions adjusting for participation indicators (AR). Using the example of risk factors for preschool ADHD symptoms in the Norwegian Mother and Child Cohort Study, we find that common genetic causes of continued participation indicators and exposures suggest presence of bias, and report that AR associations deviate up to more than 100\% from IPW estimates. Because participation indicators and risk factors for mental health problems have often common unobserved causes, prospective cohort studies of mental health that do not use IPWR likely reported biased results. More generally, assessment of bias for entire multi-exposure multi-outcome cohort studies is not possible. Instead, selection bias has to be assessed and controlled for individual analyses of exposure outcome associations.
+	\end{abstract}
+
+
+The authors thank Eivind Ystrøm for discussing an earlier version of the research and the International Cannabis Consortium for providing GWAS summary data.
+\end{titlepage}
+\section{Introduction}
+
+The complex etiology of many disorders and ethical considerations often precludes experimental approaches to identifying their causes\supercite{Rothman2008-sq}. When controlled experimentation is not possible, cohort studies can provide valuable insights \supercite{Greenland2017-qr}. Prospective cohort studies are particularly valuable, because participants enroll before the outcome of interest has occurred. Still, in prospective cohort studies selection bias is possible when the study sample is not a random sample from the population \supercite{Hernan2004-oz}. Indeed, participation in cohort studies depends on socio-demographic factors \supercite{Galea2007-hv}. Hence recent research investigated bias in exposure outcome association estimates from large population based prospective cohort studies empirically by comparing associations in the study sample with those in the source population \supercite{Nilsen2009-ci, Nohr2006-uf, Hatch2016-us}.
+A related study assessed bias due to loss to follow up by comparing association estimates from inclusion and follow up participants\supercite{Greene2011-am}. A limitation of this empirical approach to detecting selection bias is that it can only evaluate association estimates when exposure and outcome data for the whole population is available.
+
+The structural approach to selection bias uses directed acyclic graphs (DAGs)\supercite{Pearl1995-ss} to explain the manifestation of bias and requires information about participation indicators as well as their association with exposures and outcome, potentially via unobserved common causes. By focusing on relevant indicators, the structural approach can investigate unique or joint effects of self selection or loss to follow up. \citeauthor{Hernan2004-oz}\supercite{Hernan2004-oz} showed that bias in cohort studies manifests if, (a) outcome and participation indicators have an unobserved common cause and (b) the exposure is directly or indirectly associated with participation or its indicators (see Figure \ref{fig:f1a} and \ref{fig:f1b}). These types of bias will also manifest if participation indicators are causes of exposures. In absence of common effects and unobserved common causes, selection bias can still emerge due to effect modification \supercite{Greenland1989-kd, VanderWeele2009-lm}.
+
+\begin{figure}
+	\centering
+	\input{figures/SelectionBias} 
+	\caption{Directed acyclic graph of bias due to self selection or loss to follow up in prospective cohort studies. A spurious association between exposure $E$ and outcome $D$ occurs when (continued) participation $P$ is a common effect of exposure $E$ and participation indicators $L$, and $L$ and the outcome $D$ share an unobserved common cause $U$. \protect\circled{$P$} indicates conditioning on $P$, which opens a collider\supercite{Cole2010-za}, resulting in a spurious association between $D$ to $E$. Panel (a) depicts a situation where $L$ and $E$ are independent as long as there is no conditioning on $P$. This type of bias can be corrected by adjusting for variables $L$ or through multilevel regression and post stratification. (b) When $E$ and $L$ share an unobserved common cause, bias can only be corrected with inverse probability weighting. Panel (c) depicts bias due to effect modification through variables that also determine participation. This bias can emerge in the absence of unobserved variables and can be corrected through adjusted regression and post stratification or by modeling the interaction between $L$ and $E$. (Panels (a) and (b) modified from \citeauthor{Hernan2004-oz}\supercite{Hernan2004-oz}.}
+	\label{fig:SelectionBias}
+\end{figure}
+
+
+Figure 1 highlights that bias due to self selection and loss to follow up depends on the covariation of variables included in an analysis with each other and with unobserved causes. Therefore, the presence or absence of bias cannot be determined for an entire cohort study that measures different exposures and outcomes. Instead, it has to be determined for each exposure-outcome-pair. Acquiring information about associations that determine selection bias is non-trivial, because \emph{unobserved} common causes of participation indicators and outcome are central. Common causes can be of environmental\supercite{Johnson2011-wi,Verweij2013-xk} or genetic nature. Genetic correlation coefficients ($r_G$) from twin\supercite{Tambs2012-km} or genome wide association studies \supercite{Bulik-Sullivan2015-er}, which can serve as indicators of common genetic causes, are more widely reported. For instance, single nucleotide polymorphism (SNP) based genetic correlations of $r_{G_{SNP}}=0.01$ and $r_{G_{SNP}}=0.731$ between education and birth-weight or childhood IQ, respectively, were reported\supercite{Bulik-Sullivan2015-xn}. Hence, if one uses a study sample that over-represents well-educated mothers to examine associations between maternal depression and birth weight or childhood IQ, the latter association is more likely biased.
+
+A limitation of the structural approach is that it provides no estimate of bias-magnitude. When population wide data about exposures and outcomes is unavailable, one can estimate bias-magnitude by comparing association estimates obtained with and without controlling for selection bias. Selection bias can be corrected by adjusting for participation indicators (adjusted regression, AR), by stratified analysis and post-stratification  (e.g., multilevel regression and post stratification, MRP\supercite{Gelman2007-hx}), and by weighting individuals according to the inverse participation-probability (inverse probability weighting, IPW\supercite{Seaman2013-rj}). While IPW corrects all types of selection bias displayed in Figure \ref{fig:SelectionBias}, MRP corrects bias due to effect modification and structural bias when the exposure does not cause or share a common cause with participation indicators (as in Figures \ref{fig:f1a} and \ref{fig:f1c}), and AR only corrects bias when the exposure does not cause or share a common cause with participation indicators (c.f. Figure \ref{fig:f1a}). AR and MRP cannot correct selection bias when the exposure causes or shares a common cause with participation indicators (c.f. Figure \ref{fig:f1b}) because conditioning on colliders introduces bias \supercite{Cole2010-za}.
+
+In the remainder of the article we use the association between parental characteristics and preschoolers' ADHD symptoms in the Norwegian Mother and Child Cohort study as an example to demonstrate assessment of bias due to self selection and loss to follow up in a large prospective cohort study. We estimate the joint effects of self selection and loss to follow up by assessing bias in the study population for which outcome data is available, because both biases are present in longitudinal studies.
+
+\section{Methods}
+
+\subsection{Background population and study sample}
+
+\paragraph{Study sample} MoBa is a prospective population-based pregnancy cohort study conducted by the Norwegian Institute of Public Health \supercite{Magnus2006-jj,Magnus2016-ht}. Participating mothers from all over Norway were recruited during routine ultrasound assessment in week 17 or 18 of their pregnancy in the period from 1999 to 2009. 41\% of the invited women consented to participation. MoBa participants received questionnaires in gestational week 17 or 18, week 22 and week 30, at child's age 6 and 18 months, 3, 5, and 8 years and onward (questionnaires available at http://www.fhi.no/moba). The study is still ongoing. The reported analyses also use information from the Medical Birth Registry of Norway (MBRN)\supercite{Irgens2000-ra}, with data on all births in Norway.
+
+The current analysis uses data from the main inclusion period from January 2001 to December 2009, in which 94373 mothers returned the 1st MoBa questionnaire around the 20th pregnancy week. Of these 55763 (59\%) also returned the 6th MoBa questionnaire (at child age 3 years). Table \ref{table:age_edu} shows age and education of the analyzed MoBa sample.
+
+\begin{table}[ht]
+	\input{tables/age_edu_v9.tex}
+	\label{table:age_edu}
+\end{table}
+
+\paragraph{Socioeconomic data about the source population}
+We obtained aggregated data about age, educational level, and number of children in the household for all women who became mothers in the sampling period of the MoBa from Statistics Norway (SSB). 
+
+
+\subsection{Statistical analysis}
+
+\paragraph{Investigating unobserved common causes with LD score regression} We used linkage disequilibrium (LD) score regressions \supercite{Bulik-Sullivan2015-er} to calculate genetic correlations between indicators of participation, exposures, and outcome from summary results of genome wide association studies (GWAS). Table \ref{tab:gwas} lists phenotypes for which we obtained GWAS summary data. Genetic correlations also provide information about common causes of maternal characteristics and child phenotypes because mothers and their children share 50\% of their genes.
+
+\paragraph{Outcome, exposures, and control variables} We calculated the outcome variable "ADHD symptom score" by summing the responses (Not, Somewhat or Very often true, coded as 0, 1, 2) to 11 questions about ADHD symptoms that mothers' answered when the child was around 3 years old. Three separate analyses examined the magnitude of selection bias when estimating the effect of (a) birth-related outcomes, (b) maternal and paternal use of legal drugs, and (c) maternal and paternal mental health and use of illegal drugs on preschoolers' ADHD score. Table \ref{table:variables} describes the variables used in the analyses, including a number of control variables as well as transformations applied. 
+
+Mothers\textquotesingle \space mental health was measured as sum scores of the short forms of the symptom check list (SCL)\supercite{Tambs1993-ch} and the lifetime history of depression questionnaire (LTH-5)\supercite{Kendler1993-pf}. Use of illegal drugs (cannabis, ecstasy, amphetamines, cocaine) before or in the pregnancy was assessed with Likert scales (fewer than 0.01\% indicated to having used heroin). Ability scores resulting from an item response theory analysis of these variables \supercite{Rizopoulos2006-bc} were used as predictors in the regression analysis. 
+
+\input{tables/variables}
+
+All presented analyses are based on participants for which at least 50 \% of the analysis variables were available. We created 20 multiply imputed data sets with the R package mi \supercite{Su2011-he}. 
+
+\paragraph{Regression model and bias estimation}
+
+In brief, the analysis involves simultaneous estimation of parameters for a regression model with inverse probability weighting (IPW) and an adjusted regression (AR) model, where the AR model adjusts for the participation indicators used in the selection model. To account for covariation of regression weights, weights for the AR model are defined as  weights for the IPW model plus a difference term. Because ADHD sum scores are constraint to be between 0 and 22, we used a beta binomial regression model and report results as average marginal effects (AMEs), because these are more intuitive than regression weights on a multiplicative scale. 
+
+Smoothed inverse probability weights were calculated from results of a hierarchical binomial regression\supercite{Stan_Development_Team_2016-te} of MoBa participation on the indicators parity, mothers' age, and education (c.f. \ref{fig:IPW}). All analyses used the same set of control variables (c.f. \ref{table:variables}) except that only the AR analysis adjusted for participation indicators.
+
+We calculate bias by dividing the difference between the AME estimates of the IPW and AR models with either the standard deviation or the mean of the IPW estimate. Both approaches have been used previously\supercite{Stuart2010-cj,Nilsen2009-ci}, the former appeals to the intuition that bias is problematic if the true parameters high certainty, whereas the latter appeals to the intuition that bias is problematic if it has a large deviation from the true parameter. To test for bias, we check how much of the posterior distribution of the bias lies within a region of practical equivalence (ROPE), i.e. in a range of bias that is for practical purposes equivalent with zero \supercite{Kruschke2010-zi, Mascha2011-um}. This also allows quantifying the risk for substantial bias as the ratio of the posterior probabilities of the bias estimate being inside and outside the ROPE. Similar to earlier research, which defined deviations of larger than 30 or 40\% of the standard deviation or mean of comparison standard as problematic\supercite{Stuart2010-cj,Nohr2006-uf}, we biases of less than 0.5 as practically equivalent with zero.
+
+Regression analyses were performed with custom models implemented in Stan \supercite{Stan_Development_Team2017-lp} and fit with RStan\supercite{Stan_Development_Team2017-lp}.
+
+\section{Results}
+
+Statistics Norway recorded 510\,561 women who became mothers in the period from 2001 to 2009. In the same period, 94\,373 mothers returned the first MoBa questionnaire (Q1). Of these, 55\,763 also returned the sixth questionnaire,  which was sent out when  children were 3 years old. 54\,557 returned questionnaires with fewer than 50\% missing data among the variables of interest. The participants included in the reported analysis constitute around 14\% of the source population.
+
+\subsection*{Socio-demographic composition of study sample and population}
+ Mothers with elementary school education or less constitute around 18.7\% of the population but only 1.7\% of the MoBa sample (see Table \ref{table:age_edu}). 16.6\% of mothers in the population are younger than 25, compared to around 9.1\% in the MoBa samples. Accordingly, the participation rates vary substantially between population subgroups: 23.8\% of mothers with a master's degree participated in MoBa, but only around 0.8\% of mothers with elementary school education. For parity, the difference between MoBa and population is less pronounced. The percentages of women in the population (MoBa) who had previously 0, 1, 2, or 3 or more pregnancies are 41.8 (50.9), 36.3 (32.5), 16.1 (13.9), 2.8 (5.8), respectively. Hence, MoBa over-represents mothers of firstborn children and under-represents those with more than two children.
+
+\subsection*{Inverse probability weights}
+The hierarchical binomial model captured participation well, as indicated by a correlation of $r=0.99$ between modeled and observed participation rates (see Figure \ref{fig:IPW}). The mothers's education was the key variable to predict participation. Smoothed weights ranged between on average 0.31 and 21.36. The largest weights were for mothers with only elementary school education, and the smallest for mothers with a master's degree. We chose not to trim weights, because this would result in improper weighting of the study sample.
+
+\subsection*{Unobserved genetic common causes}
+LD score regression results indicate unobserved common genetic causes of participation indicators and outcome or exposures, respectively (see Figure \ref{fig:rg}). For example, genes associated with "age at first birth" or "years of education" are also (negatively) associated with ADHD, maternal mental health, or smoking. The overall SNP based heritability is generally not high, and often below 10\%.
+
+\begin{figure}
+	\begin{center}
+		\input{figures/rg}
+	\end{center}
+	\caption{Genetic correlations as indicators of common unobserved causes. $h^2_{SNP}$ = SNP based genetic heritability based on LD score regression. $r_{G_{SNP}}$ = genetic correlation between two traits based on LD score regression from GWAS summary results. Square colors indicate direction and size of correlations, the size visualizes z-values (which also depend on sample sizes). Gray squares in the cells visualize the border to $|z|=4$ . The possibility of common causes of the participation indicators education and mothers age (AgeFirstBirth) and outcome ADHD cannot be excluded. Education and some exposures like maternal depressive symptoms or smoking also appear to have common genetic causes. Table \ref{tab:rg} lists all genetic correlations and heritability estimates.}
+	\label{fig:rg}
+\end{figure}
+
+\subsection*{Selection bias for exposure outcome associations}
+We estimated the association of three risk factor groups---preterm birth and light birth-weight, mental health and illegal drug use, and parental smoking and alcohol use---with mother rated ADHD symptoms in preschoolers. Figure \ref{fig:estimates} and Table \ref{table:estimates} show average marginal effect estimates from an inverse probability weighted analysis that properly controls selection bias (AME$_{IPW}$) from an adjusted regression that only adjust for participation indicators (AME$_{AR}$). Consistent with the previous literature, most risk factors were positively, albeit typically weakly, associated with the ADHD symptoms sum-score. Maternal smoking had the strongest association: Mothers who indicated that they smoked reported on average an ADHD symptom sum-score that was around 0.4 points higher than mothers' who indicated no smoking (on a scale from 0 to 20). Maternal drinking (frequency of alcohol use), depressive symptoms (SCL), and a low birth weight (SGA) were also relatively strongly associated with ADHD sum scores, whereas associations with paternal variables were generally weaker, especially in the AR analysis.
+
+
+We estimated selection bias as the difference between average marginal effects ($AME$) from the IPW and AR analyses, standardized by either the mean or the standard deviation of the IPW estimates (mean- and standard deviation-standardized bias, respectively). Figure \ref{fig:estimates} and Table \ref{table:estimates} show that there is evidence for the presence of bias when bias is standardized by the standard deviation of the $AME_{IPW}$ estimate (see also Figure \ref{fig:logRRs}). Mean-standardized bias estimates indicate absence of bias for mothers' depressive symptoms (SCL, $log(RR)=5.4$) and mothers' smoking in pregnancy (mSMOKE, $log(RR)=3.1$). 
+
+While the highest density interval of the bias estimates lies only for few variables completely outside the region of practical equivalence (ROPE), the risk ratio for having a bias larger than 0.5 is higher than 20 (i.e. $log(RR) < -1.3$) for 9 variables when standardizing bias by the standard deviation of $AME_{IPW}$ and for 5 variables when standardizing by the mean of $AME_{IPW}$. The results indicate both over-- and under--estimation of associations in the AR analysis (e.g. frequency of mothers alcohol use and fathers' drug use).  IPW and AR results also differ categorically, in that sometimes the IPW results provide evidence for an association while the AR results do not (e.g. fathers' drug use) and sometimes vice versa (fathers smoking per day). 
+
+\begin{figure}
+	\centering
+	\input{figures/estimates.tex}
+	\caption{\footnotesize \linespread{1.3}\selectfont{} Exposure association estimates. AR: regression adjusted for participation indicators. IPW: inverse probability of participation weighted regression. The left panel shows association estimates in terms of average marginal effects ($AME$) of a one point increase of the exposure (all exposures except parity were standardized). HDI: Highest density interval of the posterior distribution. The right panel shows differences between the AR and IPW estimates ($\delta = AME_{IPW}-AME_{AR}$), standardized by the mean ($\mu_{IPW}$) or the standard deviation ($\sigma_{IPW}$) of the IPW estimates. To confirm the absence of bias, the 90\% HDI should fall within a region of negligible differences between the AR and IPWR estimates. The two red lines enclose a region where the deviation is smaller than 50\% of the mean or standard deviation of the IPW estimate.}
+	\label{fig:estimates}
+\end{figure}
+
+\input{tables/estimates.tex}
+
+
+\section{Discussion}
+Bias due to self-selection into studies and selective dropout is a threat to the validity of exposure outcome estimates from prospective cohort studies, because these often over-represent well educated, resourceful sections of the population (Table \ref{table:age_edu}, see also\supercite{Vinther-Larsen2010-hq, Galea2007-hv, Howe2013-vv}). Following \citeauthor{Hernan2004-oz}\supercite{Hernan2004-oz} we described that selection bias manifests when outcome and participation indicators have a common unobserved cause, and when the exposure causes participation or has a common cause with its indicators. Bias due to effect modification \supercite{Greenland1989-kd, VanderWeele2009-lm} arises when magnitude or direction of exposure outcome associations depend on participation indicators. Because the manifestation of bias depends on the specific variables involved, it is not possible to generally evaluate selection bias for entire cohort studies that assess multiple exposures and outcomes. Structural analysis also shows that among the statistical approaches to control bias, inverse probability weighting (IPW) is more generally able to correct bias\supercite{Hernan2004-oz}.
+
+The analysis of relationships between exposures, participation indicators, and outcome informs expectations about the presence or absence of bias, but its magnitude can only be determined empirically. Using the association between risk factors and preschool ADHD symptoms in MoBa as an example, we report few instances where selection bias can be excluded. The differences between estimates obtained with weighting or adjustment were often large, indicating the presence of substantial bias when regression models only adjust for participation indicators.
+
+The current study reports more evidence for the presence of bias than previous investigations of self-selection bias \supercite{Nilsen2009-ci, Nohr2006-uf} or bias due to loss to follow up \supercite{Greene2011-am, Wolke2009-lu} in large prospective cohort studies. Previous reports typically compared association estimates from the source population with those from the study sample, whereas we used the IPW corrected estimate as the "ground truth". It is therefore possible that the results do not indicate bias in estimates from adjusted regressions, but that the IPW results are biased. However, whereas IPW can introduce bias when weights are inappropriate because participation probabilities are not estimated well \supercite{Seaman2013-rj}, this is unlikely the case in our study because the selection model predicted participation well. Another potential explanation is that bias in study samples at the onset of cohort studies is smaller because participation rates are higher. Further, whereas birth-related outcomes \supercite{Nilsen2009-ci, Nohr2006-uf} less likely have common unobserved causes with mothers' educational attainment\supercite{Goldenberg2008-xe}, ADHD and other mental health outcomes are much more likely to share common causes with educational attainment (c.f. Figure \ref{fig:rg} and \supercite{Hagenaars2016-di}). Indeed, the strongest evidence for bias from earlier investigations comes from the association between mothers' smoking and child ADHD \supercite{Greene2011-am}. Lastly, whereas previous studies evaluated bias by testing for significant difference between sample and population estimates, equivalence testing\supercite{Schuirmann1987-ip, Mascha2011-um} is the proper approach to test if two association estimates are equal. Because non-significant differences can simply be due to large confidence intervals for bot sample and population estimates, previous analyses provided little statistical evidence for the absence of bias. 
+
+While the presented results indicate the presence of bias, one could reason that this is largely inconsequential, because the weighted and un-weighted association estimates typically point in the same direction (have the same sign). However, it is also important to recognize that in some cases the weighted and unweighted analyses led to categorically (qualitatively?) different conclusions. Crucially, in translational research the magnitude of an association is also important, so that not only non-detection of effects, but also errors in the estimation of effect sizes are problematic \supercite{Sullivan2012-uc}.
+
+Conclusions about the presence or seriousness of bias can depend on how bias estimates are standardized or by how large the ROPE is. Typically, bias estimates are standardized by the standard deviation of the unbiased parameter estimate\supercite{Stuart2010-cj}, which we here replaced with the standard deviation of the corrected estimate. Similar \citeauthor{Nilsen2009-ci}\supercite{Nilsen2009-ci} we also estimated the percent deviation from the "true" association, and found that this mean-standardizes bias estimates was generally smaller. It is difficult to generally determine how large a bias is problematic, which should depend on the subject matter. We defined standardized deviations of less than 50\% as practically equivalent with zero, which is a higher than the 30\% or 40\% as thresholds used in previous studies\supercite{Greene2011-am, Stuart2010-cj}, and still found clear evidence for bias.
+
+Earlier assessments of bias in cohort studies that compared association estimates from study-sample and population are elegant in that their validity does not depend on assumptions about the causal relationship of exposure, outcome, and participation indicator. However, if population data about exposure and outcome are available, estimation of selection bias in a study sample is superfluous because associations estimates should be obtained from population data. Using results from an IPW regression as comparison standard rests on the assumption that the weighted sample is a good representation of the population, which is only the case if participation can be predicted successfully \supercite{Seaman2013-rj}. We found a high correspondence between predicted and observed participation rates, which suggests that the weighted sample represents the population well. To verify that this assumption check is falsifiable, one can hypothesize a scenario that would have resulted in a violation of the assumption. This could happen if there were additional participation indicators that are partially independent of education. For example, if participation would also depend on mothers' birth month, a selection model that uses socio-economic variables as indicators would not fare well. Using IPW is not possible if some population sub-groups are not or in very small numbers present in the sample. However, this rather indicates a weaknesses of the sampling strategy than a weakness of the IPW.
+
+Structural analysis highlights that bias depends specifically on the involved variables, such that the presence or amount of bias for one association does not generalize to other associations. Still, structural analysis described under which conditions bias manifests. A first condition for bias to emerge is the presence of common unobserved causes of participation indicators, e.g. education, and the outcome. A second condition is  participation being a common consequence of exposure and the participation indicator. Figure \ref{fig:rg} shows that genes can be common unobserved causes of mental health and the participation indicator education, and that education and exposures like smoking likely are common consequence of some genes. It therefore is likely that non-weighted estimates of associations between e.g. mothers' mental health, smoking or drinking behavior, and mental health related outcomes are biased. Importantly, this hypothesis only suggests that bias is likely, whereas the actual presence and magnitude of bias is unknown and has to be examined in individual studies. 
+
+\begin{figure}
+	\centering
+	\begin{singlespace}
+	\input{figures/decision_trees}		
+	\end{singlespace}
+	
+	%\input{figures/decision_tree}
+	\caption{Decision tree for identification of selection bias and choice of approach to correct for selection bias. See Figure \ref{fig:SelectionBias} for causal diagrams that underlie the decision tree. 
+	To determine if selection bias is likely, and if so which correction method can be used, proceed through the questions from the top on. Ending in a node "Bias is unlikely" implies that a standard analysis without correction for selection bias will result in unbiased estimates. Otherwise, different correction types can be used, depending on the underlying causal structure. IPW stands for analysis with inverse probability weighting, AR for adjusted regression. For reasons of brevity, this decision tree does not isolate cases where multilevel regression and post stratification (MRP) can be used to correct bias. See appendix for a more detailed decision tree that represents also these cases.}
+	\label{fig:DecisionTree}
+\end{figure}
+
+
+Structural analysis using directed acyclic graphs (DAGs) is a useful tool for the development of analysis strategies that remains underused. A practical argument against the use of DAGs is the uncertainty about causal relationships. We proposed to use genetic correlation coefficients from LD score regression of GWAS summary data as one possibility to substantiate assumptions about unobserved common causes. While unobserved common causes can be of environmental or genetic nature, the main motivation to focus on common genetic causes is the growing availability of large consortium-based GWAS studies---including summary results--- and methodological advances allowing estimation of heritability and genetic correlation coefficients for a diverse set of variables \supercite{Bulik-Sullivan2015-er, Bulik-Sullivan2015-xn}. Because GWAS studies are association studies, they do not provide unambiguous proof for a causal role of genes. Still, even if GWAS associations estimates are partly driven by environmental factors, genetic correlation estimates are of interest because common environmental causes also contribute to the manifestation of selection bias.
+
+
+A second challenge when using structural models is the difficulty of formulating DAGs for complex causal models\supercite{Shrier2008-vr}. When judging the presence of bias due to self-selection and selective dropout, a simple decision tree can supplant the formulation of a complete DAG, so that the researcher can determine the potential for selection bias by answering a sequence of questions about the relationship of participation indicators, exposures, and outcomes. Figure \ref{fig:DecisionTree} shows a decision tree that can be used to identify when correction for bias is necessary. 
+
+A topic closely related to selection bias is that of the representativeness. While it has been argued that representativeness can be detrimental to scientific inference, because understanding of mechanisms and careful control of relevant variables are central for this aim \supercite{Rothman2013-qc}, others have emphasized the importance of representativeness---understood as the availability of weights for calculating valid population estimates \supercite{Keiding2016-fv}. Careful experimentation based on hypothesized mechanisms is undoubtedly central to scientific inference. Still, this approach does not describe well the often-exploratory analyses of cohort study data. Moreover, if one understands causal inference as the central goal of scientific inquiry, ignoring non-representativeness of unweighted study samples does not only undermine generalization to the population of interest, but can also lead to incorrect scientific inferences by facilitating the "discovery" of associations where there are in fact none, or prevent the detection of existing associations.
+
+In conclusion, self-selection into cohort studies and loss to follow up can lead to biased estimates of exposure outcome associations from large population based cohort studies. Structural analysis and empirical results suggest that especially for mental health related exposures and outcomes selection bias is likely. Still, the dependency of bias on the specific outcome, exposure, and study participation indicators makes general statements about selection bias for multi-exposure multi-outcome studies impossible. Instead, each  investigation of an exposure-outcome association has to assess selection bias. If selection bias is likely and valid participation indicators are available, weighting cases by the inverse of their probability to participate is a robust approach to control bias.
+
+\newpage
+
+\printbibliography
+
+\newpage
+
+\processdelayedfloats
+
+\clearpage
+
+\makeatletter
+\efloat@restorefloats
+\makeatother
+
+\appendix
+
+\renewcommand{\thefigure}{S\arabic{figure}}
+\renewcommand{\thepostfigure}{S\arabic{postfigure}}
+\setcounter{figure}{0}
+\setcounter{postfigure}{0}
+
+\renewcommand{\thetable}{S\arabic{table}}
+\renewcommand{\theposttable}{S\arabic{posttable}}
+\setcounter{table}{0}
+\setcounter{posttable}{0}
+
+\section{Supplementary Information}
+
+\subsection{Supplementary Methods}
+
+\paragraph{Bayesian regression models.} 
+We implemented beta binomial regression models in the probabilistic programming language Stan \supercite{Carpenter2017-gd, Stan_Development_Team2017-lp}. The beta binomal distribution is the natural choice for sum scores as outcome, which are bound between zero and an upper bound. Stan also allows simultaneous estimation of a regression model that uses inverse probability weights (IPW) and one that does not but adjusts for participation indicators (AR), while explicitly modeling the difference (bias) between the models' regression weights.
+
+\paragraph{Comparison of exposure outcome association estimates} The statistical model directly estimates selection bias by modeling regression coefficients for AR as the coefficients for IPW plus the difference between the IPW and the AR coefficients. This approach accounts for covariation between regression weights when estimating bias. The ADHD sum scores are modeled as  $S = beta$-$binomial(\alpha,\beta)$, where $\alpha = \pi\phi$, $\beta = (1-\pi)\phi)$, and phi is the over-dispersion parameter of the beta binomial distribution. The expected sum score is defined as 
+\newline
+$\mathbf{\pi}_{IPW} = inv.logit(\mathbf{X} \beta_{IPW})$ 
+\newline
+$\mathbf{\pi}_{AR} = inv.logit(\mathbf{X} \big( \beta_{IPW} + \delta_{AR} \big) + \mathbf{P}\rho)$
+\newline
+where \textbf{X} is a matrix containing exposures of interest and control variables excluding participation indicators, $\beta_{IPWR}$ are the regression weights for the IPW analysis, $\delta$ models the differences between regression weights for the weighted and adjusted regression, \textbf{P} and $\rho$ are participation indicators and corresponding regression weights.
+
+Because coefficients of a beta-binomial regressions are on the less intuitive multiplicative scale, we used the marginal standardization approach \supercite{Muller2014-bh} to calculate average marginal effects ($AME$), the expected change in the outcome ADHD sum score for a one unit change of the exposure, and report results on this scale.
+
+We test for bias by using a region of practical equivalence approach (ROPE\supercite{Kruschke2010-zi}), which checks if the highest density region of the bias estimates lies within a region of bias magnitudes that is for practical purposes equivalent with zero\supercite{Kruschke2010-zi}. This approach also allows quantifying the risk for substantial bias as the ratio of the posterior probabilities of the bias estimate being inside and outside the ROPE, i.e. $log(RR) = logit(\int_{-b}^{b} \delta)$.
+
+Which range of selection bias can be considered as unproblematic can be judged by subject matter experts. Alternatively, the bias estimate can be standardized by dividing it by the variance of the "gold standard" estimate\supercite{Stuart2010-cj}, here the IPW estimate, which corrects selection bias. A complementary approach is to divide the bias estimate with the mean of the corrected estimate, capturing the intuition that deviations matter less if they are small compared to the corrected estimate. We define the interval of $\pm$ 0.5 standardized deviations as practically equivalent with zero. This sets a high threshold for determining the presence of a problematic bias. In other contexts, different thresholds might be appropriate.
+
+\paragraph{Inverse probability weights} 
+Inverse probability weights were calculated based on a hierarchical binomial regression, where participation rates were estimated as an effect of mothers' age, education, and parity,  whereby the intercept as well as linear and non-linear (square) effects of mothers' age were allowed to vary by education and parity. 10-fold cross validation confirmed that this model did not over-fit the data. Following general recommendations we calculated smoothed weights\supercite{Seaman2013-rj}. We calculated weights separately for imputed data sets and used a 2 step approach\supercite{Zigler2016-od} to incorporate uncertainty about weights into the regression analysis.
+
+\paragraph{MCMC estimation} 
+
+Regression models were estimated with Hamiltonian Monte Carlo sampling as implemented in Stan. For each regression, 3 chains were sampled for 20 imputed data sets. Each chain consisted of 250 warmup samples and an additional 500 iterations that were used to calculate statistics. We checked convergence of the 3 chains per imputed data sets by insuring that \^{R} values were below 1.1 \supercite{Gelman1992-jz}, and no divergent transitions had occurred \supercite{Stan_Development_Team2016-pc}. All parameters of all models successfully converged, as indicated by \^{R} values below 1.1. We thus merged all chains prior to calculating statistics\supercite{Zhou2010-li} such that reported results are based on 30,000 (20 imputed data sets $\cdot$ 3 chains $\cdot$ 500 iterations) combined post-warmup samples.
+
+\subsection{Supplementary tables}
+
+\input{tables/gwas_studies.tex}
+
+\input{tables/rg_h.tex}
+
+\newpage
+
+\subsection{Supplementary figures}
+
+%\begin{figure}[ht]
+%	\centering
+%	\input{figures/ADHD_sumscore}
+%	\caption{\footnotesize Distribution of ADHD sum score calculated from mother reported ADHD symptoms.}
+%	\label{fig:ADHDsumscore}
+%\end{figure}
+
+\begin{figure}[ht]
+	\centering \input{figures/covariation.tex}
+	\caption{Correlation of variables. Colors represent positive (red) and negative (blue) correlations. Darker colors signify stronger correlations (see color key). Note the negative correlations between clusters of risk factors (drinking, smoking, drug use, depressive symptoms) and protective factors (parents\textquotesingle \space education and age). The correlation of the  demographic variables age and education, which also participation indicators in the MoBa (c.f. Table \ref{table:age_edu}), with a number of exposure variables suggests the presence of selection bias in analysis that do not account for self-selection into the MoBa}
+	\label{fig:covariation}
+\end{figure}
+
+
+\begin{figure}[ht]
+	\centering
+    \input{figures/IPW}	
+	\caption{Selection model fit and smoothed inverse probability weights. Top panel: Scatter plot of predicted and observed participation rates based on a binomial regression model $Participation \sim 1 + (1 + Age + Age^2 | Education:Parity)$. $N_{SSB}$ indicates the number of mothers in different population subgroups that gave birth in between 2001 and 2009 in Norway, according to statistics Norway. Mothers' education is the key indicator of continued participation. The size of the dots indicates the relative size of a group in the population. Bottom panel: Overlay-ed histograms of smoothed inverse probability weights for 20 imputed data sets.}
+	\label{fig:IPW}
+\end{figure}
+
+
+\begin{figure}[ht]
+	\adjustbox{width=\textwidth}{
+		\centering \input{figures/logRRs.tex}
+	}
+	\caption{Evidence for and against selection bias. To obtain a measure of evidence for or against selection bias, we compare how much of the posterior distribution of the difference between the IPW and AR estimates fall within vs fall outside the region of practical equivalence: $log(RR) = logit(\int_{-.5}^{.5}\delta)$. Categorization into positive, strong, or very strong evidence is based on \supercite{Kass1995-uv}. Standard deviation (mean) standardized bias estimates are shown in in blue (black).} 
+	\label{fig:logRRs}
+\end{figure}
+
+
+
+\begin{figure}[ht]
+	\centering \input{figures/ROPE_plots.tex}
+	\caption{Evidence for and against selection bias for alternative ROPE boundaries. Each plot has the (absolute) ROPE boundary on the x axis and the proportion of the posterior distribution of the bias estimate on the y axis. Blue curves are for mean standardized bias estimates ($\delta/\mu_{IPW}$) and black for standard deviation standardized estimates ($\delta/\sigma_{IPW}$). The red dotted line marks the ROPE boundary of 0.5 used in the presented analysis. Squares (triangles) on the x axis mark ROPE boundaries at which the ROPE would include (exclude) 90\% of the posterior distribution of the bias estimate fall.}
+	\label{fig:ropeplots}
+\end{figure}
+
+
+\end{document}

@@ -1,0 +1,66 @@
+---
+title: "Overview of analysis scripts"
+author: "Guido Biele"
+date: "7 mai 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+[comment]: # ( If not specifies otherwise, script files are in  'F:\Forskningsprosjekter\PDB 299 - ADHD-studien Prescho_\Forskningsfiler\GUBI\GuidoData\representativeness\IPW')
+
+### Inverse probability weighted beta binomial regression in a 2 step approach
+
+
+#### Collect MoBa and MBRN data
+```010_prep_data_v9.R```
+This script opens MoBa and MBRN files and extracts variables, i.e. exposures, outcomes and additional variables deemed to be useful for multiple imputation.
+
+
+#### Impute data
+Imputation is performed with the package mi. The script ```020_mi.R``` prepares data for the imputation and starts multiple chained imputation. ```020_mi.R``` depends on ```021_mi_utils.R``` and ```022_make_ipdata_utils.R```.
+
+After the multiple chained imputation process has converged (checked with visual diagnostics from the mi package and Rhat values) the multiply imputed data sets are generated with the script ```030_make_imputed_data_v9.R```, which depends on  ```031_make_imputed_data_utils.R```.
+
+#### Compare population and Moba sample
+The script ```040_comp_SSBMOBAR_v9.R``` loads statistics we received from Statistics Norway and the multiple imputed data set and compares population and study sample with respect to mothers age, education and parity.
+
+
+#### Calculate inverse probability of participation weights
+The script ```050_calc_IPW_2SB_v9.R``` prepares data for selection model, next used to calculate inverse probability of participation weights. The selection model and calculation of smoothed weights is performed on a cluster with the script ```051_calc_IPW_2SB_v9_sl.R```. Lastly, the script ```052_plot_check_IPWs.R``` compares observed and predicted participation rates and plots those and the distribution of weights.
+
+
+#### Specify regression models for the three analyses
+Next we set up the regression models, i.e. we define outcome, predictors and adjustment variables for the analysis of effects of birth variables, mental health, and legal drug use on ADHD symptoms. This is done with the script ```060_analyses_2SB_v9.R```, which uses ```061_load_data_2SB_v9.R```.
+
+#### Save data for analysis with stan model
+The script ```07_rdump_data_2SB_v9.R``` saves multiply imputed predictors, outcomes and weights for analysis in Stan (20 data sets per analysis).
+
+
+#### The Stan model
+The Stan model ```Stan/bebi_logit_deltaAR_2SB.stan``` simultaneously estimates the IPW and AR models as well as the difference in regression weights. This model needs an auxiliary file ```Stan/get_iter.hpp``` with code to identify in which iteration the model currently is, because uncertainty in weights is propagated by letting weights vary between iterations of the sampling algorithm.
+The stan model also calculates average marginal effects.
+
+The stan model is compiled with ```Stan/compile_stanmodel.R```
+
+For each of the 3 analyses We ran 20 imputations, each with 3 chains using the script ```080_run_bebi.R```. These analysis were performed on a cluster.
+
+#### Checking regression model results
+The script ```090_show_rhats.R``` check Rhats (potential scale reduction factor) to insure convergence and saves combined posterior samples per analysis.
+
+#### Analysis results
+The script ```100_results_bebi_logit_deltaAR_2SB.R``` extracts posterior sample of average marginal effects and calculate statistics from these. The script also prepares tables and figures.
+
+
+### Calculating SNP based genetic correlations 
+
+#### Prepare downloaded GWAS summary data
+The script ```LDSR/make_LDSR_data.R``` prepares downloaded GWAS summary data for use in LD score regressions.
+
+#### Run LD score regressions
+The scripts ```LDSR/munge.bash``` implements further pre-processing, and the scripts ```LDSR/h2.bash``` and ```LDSR/rg.bash``` calculate SNP heritability estimates and all pairwise genetic correlations, respectively. Information about sample size was saved in the file var_N.txt.
+
+#### Extract LD score regression results
+The file ```LDSR/show_rgh.R``` collects results of LD score regressions and makes plot and table for LD score regression results.

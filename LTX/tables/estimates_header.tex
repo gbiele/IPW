@@ -1,0 +1,20 @@
+\begin{sidewaystable}
+	\resizebox{\textwidth}{!}{
+\begin{tabular}{rLlLlLlLlLLlL}
+ \hline
+ & \multicolumn{2}{c}{$IPW$} & 
+ \multicolumn{2}{c}{$AR$} &
+ \multicolumn{2}{c}{$\delta=AR-IPW$} &
+ \multicolumn{3}{c}{$\delta/\sigma_{IPW}$ } &
+ \multicolumn{3}{c}{$\delta/\mu_{IPW}$ }  \\
+&\multicolumn{1}{c}{\footnotesize m} & \multicolumn{1}{c}{\footnotesize HDI} &
+ \multicolumn{1}{c}{\footnotesize m} & \multicolumn{1}{c}{\footnotesize HDI} &
+ \multicolumn{1}{c}{\footnotesize m} & \multicolumn{1}{c}{\footnotesize HDI} &  
+ \multicolumn{1}{c}{\footnotesize m} & \multicolumn{2}{c}{\footnotesize HDI} {\footnotesize log(RR)} &
+ \multicolumn{1}{c}{\footnotesize m} & \multicolumn{2}{c}{\footnotesize HDI} {\footnotesize log(RR)} \\
+ \hline
+
+\end{tabular}}
+\caption{Means and 90\% HDIs of exposures outcome associations and standardized bias. $\sigma_{IPW}$ and $\mu_{IPW}$ are standard deviation and mean of the posterior distribution of the IPW regression coefficients. To obtain the log risk ratio $log(RR)$, we first calculated the posterior probability that the bias is within the ROPE, divided it by the opposite probability and took the logarithm of quotient. Hence, negative $log(RR)$ indicate presence of bias. For example, a log(RR) of -1.6 means that the bias estimate is five times as likely to lie outside the ROPE.} 
+\label{table:estimates}
+\end{sidewaystable}

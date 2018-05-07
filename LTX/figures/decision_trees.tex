@@ -1,0 +1,65 @@
+\begin{tikzpicture}
+	[
+	 sibling distance = 4cm,
+	 level distance   = 3cm,
+	 every node/.style = {shape=rectangle,
+		                  draw,
+		                  align=center,
+		                  top color = white,
+	                      font=\footnotesize,
+	                      minimum size = 12mm,
+	                      text width = 30mm,
+	                      inner sep = 2pt
+                         },
+    L1/.style = {sibling distance=9cm},
+    L2/.style = {sibling distance=5cm},
+    L3/.style = {sibling distance=1cm},
+    YN/.style = {minimum size = 8mm,
+    	         text width = 8mm,
+    	         pos = .5,
+    	         text opacity = 1,
+    	         fill opacity=0}
+	]
+	
+	\newcommand{\LP}{Can participation be predicted by some variables $L$?}
+	\newcommand{\nB}{Bias is unlikely}
+	\newcommand{\LED}{Does $L$ modify the effect of the exposure
+		on the outcome }
+	\newcommand{\EL}{Does the exposure cause
+		or share a common unobserved
+		cause with $L$?}
+	\newcommand{\EP}{Is participation $P$
+		an effect of
+		the exposure $E$?}
+	\newcommand{\CCDL}{Do outcome $D$ and $L$
+		have an unobserved
+		common cause $U$?}	
+
+	\node (A) {\LP}
+	child [L2] {[] node  (B1) {\LED}
+				child [L2] {[rounded corners=3mm] node (C1) {IPW}}
+			    child [L2] {[] node (C2) {\CCDL}
+		                    child [L2] {[] node (D1) {\EL}
+		                    	        child [L2] {[rounded corners=3mm] node (E1) {IPW}}
+		                    	        child [L2] {[] node (E2) {\EP}
+		                    	        	        child [L2] {[rounded corners=3mm] node (F1) {IPW, AR}}
+		                    	        	        child [L2] {[rounded corners=3mm] node (F2) {\nB}}
+		                    	                                      }
+		                                                  }
+		                    child [L2] {[rounded corners=3mm] node (D2) {\nB}}                    
+	                                         }}
+	child [L2] {[rounded corners=3mm] node  (B2) {\nB}};
+	
+	 \begin{scope}[nodes = {draw = none}]
+	   \path (A)  -- (B1) node [YN, left]   {Yes};
+	   \path (A)  -- (B2) node [YN, right]  {No};
+	   \path (B1) -- (C1) node [YN, left]   {Yes};
+	   \path (B1) -- (C2) node [YN, right]  {No};
+	   \path (C2) -- (D1) node [YN, left]   {Yes};
+	   \path (C2) -- (D2) node [YN, right]  {No};
+	   \path (D1) -- (E1) node [YN, left]   {Yes};
+	   \path (D1) -- (E2) node [YN, right]  {No};
+	   \path (E2) -- (F1) node [YN, left]   {Yes};
+	   \path (E2) -- (F2) node [YN, right]  {No};
+	 \end{scope}
+\end{tikzpicture}
