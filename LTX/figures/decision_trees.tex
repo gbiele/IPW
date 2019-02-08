@@ -1,3 +1,4 @@
+
 \begin{tikzpicture}
 	[
 	 sibling distance = 4cm,
@@ -21,7 +22,7 @@
     	         fill opacity=0}
 	]
 	
-	\newcommand{\LP}{Can participation be predicted by some variables $L$?}
+	\newcommand{\LP}{Can one or more variables $L$ predict participation?}
 	\newcommand{\nB}{Bias is unlikely}
 	\newcommand{\LED}{Does $L$ modify the effect of the exposure
 		on the outcome }
@@ -33,16 +34,16 @@
 		the exposure $E$?}
 	\newcommand{\CCDL}{Do outcome $D$ and $L$
 		have an unobserved
-		common cause $U$?}	
+		common cause $U$, or does L cause D?}	
 
 	\node (A) {\LP}
 	child [L2] {[] node  (B1) {\LED}
-				child [L2] {[rounded corners=3mm] node (C1) {IPW}}
+				child [L2] {[rounded corners=3mm] node (C1) {IPPW}}
 			    child [L2] {[] node (C2) {\CCDL}
 		                    child [L2] {[] node (D1) {\EL}
-		                    	        child [L2] {[rounded corners=3mm] node (E1) {IPW}}
+		                    	        child [L2] {[rounded corners=3mm] node (E1) {IPPW}}
 		                    	        child [L2] {[] node (E2) {\EP}
-		                    	        	        child [L2] {[rounded corners=3mm] node (F1) {IPW, AR}}
+		                    	        	        child [L2] {[rounded corners=3mm] node (F1) {IPPW, AR}}
 		                    	        	        child [L2] {[rounded corners=3mm] node (F2) {\nB}}
 		                    	                                      }
 		                                                  }
