@@ -15,7 +15,7 @@ for (a in 1:3) {
   for (i in Is) {
     sfl[[which(i == Is)]] = vector(mode = "list", length = 3)
     for (ch in 1:3) {
-     fn = paste0("samples/pADHD/bebi_a",a,"_i",i,"_c",ch,"_logitx.Rdata")
+     fn = paste0("samples/pADHD/+raww/bebi_a",a,"_i",i,"_c",ch,"_logitx+raww.Rdata")
      load(fn)
      sfl[[which(i == Is)]][[ch]] = sf
      tms = c(tms,sum(get_elapsed_time(sf)))
@@ -25,6 +25,6 @@ for (a in 1:3) {
   hist(rhats, main = a)
   sf = sflist2stanfit(do.call(c,sfl))
   post = as.matrix(sf)
-  delta_plot[[a]] = mcmc_intervals(post,regex_pars = "delta_me")
-  save(sf,file = paste0("samples/pADHD/a",a,".Rdata"))
+  delta_plot[[a]] = mcmc_intervals(post,regex_pars = "delta_ipw_")
+  save(sf,file = paste0("samples/pADHD/a",a,"+raww.Rdata"))
 }

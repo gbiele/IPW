@@ -1,17 +1,17 @@
-\begin{sidewaystable}
+
 	\resizebox{\textwidth}{!}{
 		\begin{tabular}{rLlLlLlLlLLlL}
 			\hline
-			& \multicolumn{2}{c}{$IPW$} & 
+			& \multicolumn{2}{c}{$IPPW$} & 
 			\multicolumn{2}{c}{$AR$} &
-			\multicolumn{2}{c}{$\delta=AR-IPW$} &
-			\multicolumn{3}{c}{$\delta/\sigma_{IPW}$ } &
-			\multicolumn{3}{c}{$\delta/\mu_{IPW}$ }  \\
+			\multicolumn{2}{c}{$\delta=AR-IPPW$} &
+			\multicolumn{3}{c}{$\delta/\sigma_{IPPW}$ } &
+			\multicolumn{3}{c}{$\delta/\mu_{IPPW}$ }  \\
 			&\multicolumn{1}{c}{\footnotesize m} & \multicolumn{1}{c}{\footnotesize HDI} &
 			\multicolumn{1}{c}{\footnotesize m} & \multicolumn{1}{c}{\footnotesize HDI} &
 			\multicolumn{1}{c}{\footnotesize m} & \multicolumn{1}{c}{\footnotesize HDI} &  
-			\multicolumn{1}{c}{\footnotesize m} & \multicolumn{2}{c}{\footnotesize HDI} {\footnotesize log(RR)} &
-			\multicolumn{1}{c}{\footnotesize m} & \multicolumn{2}{c}{\footnotesize HDI} {\footnotesize log(RR)} \\
+			\multicolumn{1}{c}{\footnotesize m} & \multicolumn{2}{c}{\footnotesize HDI} {\footnotesize log(RR$_b$)} &
+			\multicolumn{1}{c}{\footnotesize m} & \multicolumn{2}{c}{\footnotesize HDI} {\footnotesize log(RR$_b$)} \\
 			\hline
 SGA & 0.32 & (0.23,0.41) & 0.16 & (0.07,0.24) & 0.16 & (0.04,0.28) & 3.07 & (0.80,5.31) & -3.6 & 0.51 & (0.13,0.88) & -0.1 \\ 
   preterm & 0.16 & (0.04,0.28) & 0.06 & (-0.04,0.17) & 0.10 & (-0.06,0.26) & 1.37 & (-0.90,3.58) & -1.5 & 0.60 & (-0.40,1.58) & -0.4 \\ 
@@ -31,6 +31,3 @@ SGA & 0.32 & (0.23,0.41) & 0.16 & (0.07,0.24) & 0.16 & (0.04,0.28) & 3.07 & (0.8
   fALC.typunits & 0.08 & (0.05,0.12) & 0.04 & (0.01,0.07) & 0.04 & (-0.01,0.09) & 1.83 & (-0.42,3.91) & -2.0 & 0.50 & (-0.11,1.06) & 0.0 \\ 
    \hline
 \end{tabular}}
-\caption{Means and 90\% HDIs of exposures outcome associations and standardized bias. $\sigma_{IPW}$ and $\mu_{IPW}$ are standard deviation and mean of the posterior distribution of the IPW regression coefficients. To obtain the log risk ratio $log(RR)$, we first calculated the posterior probability that the bias is within the ROPE, divided it by the opposite probability and took the logarithm of quotient. Hence, negative $log(RR)$ indicate presence of bias. For example, a log(RR) of -1.6 means that the bias estimate is five times as likely to lie outside the ROPE.} 
-\label{table:estimates}
-\end{sidewaystable}

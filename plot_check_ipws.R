@@ -2,6 +2,35 @@ library(rstanarm)
 library(tikzDevice)
 library(RColorBrewer)
 library(data.table)
+library(Hmisc)
+library(wCorr)
+
+get_tables = function(ipw_data,weights) {
+  return(
+  lapply(c("parity","Age","edu"), function(v) {
+    cbind(prop.table(wtd.table(ipw_data[,get(v)], weights = ipw_data$N.ssb)[[2]]),
+          prop.table(wtd.table(ipw_data[,get(v)], weights = ipw_data$N.moba)[[2]]),
+          prop.table(wtd.table(ipw_data[,get(v)], weights = ipw_data$N.moba*weights)[[2]]))
+  })
+  )
+}
+
+wc = function(x,y,wght) {
+  weightedCorr(x,
+               y,
+               method = "Spearman",
+               weights = wght)  
+}
+
+get_wcorr = function(ipw_data,weights) {
+  sapply(list(ipw_data$N.ssb,ipw_data$N.moba, ipw_data$N.moba*weights), 
+         function(w){
+           c(wc(ipw_data$edu, ipw_data$Age, w),
+             wc(ipw_data$edu, ipw_data$parity, w),
+             wc(ipw_data$parity, ipw_data$Age, w))
+         } )
+}
+
 
 cols = brewer.pal(4,"RdYlBu")
 
@@ -9,14 +38,69 @@ cols = adjustcolor(c("blue","green","orange","red"),alpha = .2)
 
 pps = c()
 sipws = c()
+
+t_age = matrix(0, nrow = 6, ncol = 3)
+t_parity = matrix(0, nrow = 4, ncol = 3)
+t_edu = matrix(0, nrow = 4, ncol = 3)
+corrs = matrix(0, nrow = 3, ncol = 3)
+
 for (k in 1:20) {
   load(paste0("data/IPW_i",k,"_pADHD_2SB_v9.Rdata"))
   pps = rbind(pps,colMeans(posterior_predict(mx2)))
   sipw = sipw[,!apply(is.infinite(sipw),2,any)]
   sipws = rbind(sipws,rowMeans(sipw))
+  
+  tts = get_tables(ipw_data,sipw[,k])
+  t_age = t_age + (tts[[2]]-t_age)/k
+  t_parity = t_parity + (tts[[1]]-t_parity)/k
+  t_edu = t_edu + (tts[[3]]-t_edu)/k
+  corrs = corrs + (get_wcorr(ipw_data,sipw[,k])-corrs)/k
 }
 
 
+## plot balance of samples
+tikz('LTX/figures/IPWbalance.tex', width=12/2.54, height=15/2.54, pointsize = 14, standAlone = F)
+par(mar=c(3,3,2,1), mgp=c(2,.7,0), tck=-.01)
+#layout(matrix(c(rep(1:3,3),rep(4,6)), nrow = 3))
+layout(matrix(c(1,2,3,4,4),ncol = 1))
+tts = list(Age = t_age, parity = t_parity, edu = t_edu)
+ipw_data$parity = ordered(ipw_data$parity)
+col = RColorBrewer::brewer.pal(3,"Dark2")
+for (k in 1:3) {
+  barplot(t(tts[[k]]),
+          beside = T,
+          names.arg = levels(ipw_data[,get(names(tts)[k])]),
+          main = names(tts)[k],
+          col = col,
+          ylab = "proportion")
+  
+  if (k == 2)
+    legend("topright",
+           legend = c("Population",
+                      "Unweighted MoBa",
+                      "Weighted MoBa"),
+           fill = col,
+           bty = "n", cex = 1)
+  
+}
+lim = range(corrs)
+plot(0, type = "n",
+     xlim = lim, ylim = lim, 
+     xlab = "Population correlation",
+     ylab = "Sample correlation")
+abline(0,1, lty = 2)
+points(corrs[,1],corrs[,2], pch = 16, col = col[3], cex = 2)
+points(corrs[,1],corrs[,3], pch = 17, col = col[2], cex = 2)
+
+legend("topleft",
+       pch = c(17,16),
+       legend = c("Unweighted MoBa",
+                  "Weighted MoBa"),
+       col = col[-1],
+       bty = "n", cex = 1.5)
+dev.off()
+
+## plot oberved vs predicted participation rates
 
 obs = ipw_data$N.moba / ipw_data$N.ssb
 pred = colMeans(pps) / ipw_data$N.ssb

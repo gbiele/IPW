@@ -7,6 +7,8 @@ library(bayesplot)
 library(xtable)
 library(gtools)
 
+ft = "eps"
+
 as_matrix = function(sf,var) {
   a = extract(sf,var,permuted = F);
   samples = c()
@@ -173,9 +175,28 @@ rownames(tblx) = gsub("small_fga","SGA",row.names(tblx) )
 rownames(tblx) = gsub("SCORE","score",row.names(tblx) )
 rownames(tblx) = gsub("TYPUNITS","typunits",row.names(tblx) )
 rownames(tblx) = gsub("EFFUNITS","effunits",row.names(tblx) )
-names(tbl) = c("IPW","AR","AR-IPW","(AR-IPW)/\\sigma[IPW]","(AR-IPW)/\\mu[IPW]")
+names(tbl) = c("IPPW","AR","AR-IPPW","(AR-IPPW)/\\sigma[IPPW]","(AR-IPPW)/\\mu[IPPW]")
 colnames(tblx) = c("IPW","HDIIPW","AR","HDIAR","delta","HDIdelta","deltasd","HDIdeltasd","lRRdeltasd","deltamu","HDIdeltamu","lRRdeltamu")
 print(xtable(tblx,caption = "Parameter estimates"),file = "LTX/tables/estimates.tex")
+print(htmlTable(tblx), file = "LTX/tables/estimates.html")
+
+FT = FlexTable(tblx, header.columns = F, add.rownames = T,body.cell.props = cellProperties(padding = 0))
+FT = addHeaderRow(FT,
+                  value = c("","IPPW","AR","delta","deltasd","deltamu"),
+                  colspan = c(1,2,2,2,3,3))
+FT = addHeaderRow(FT,
+                  c("","m","HDI","m","HDI","m","HDI","deltasd","HDI","log(RR)","m","HDI","log(RR)"))
+
+library(ReporteRs)
+doc <- docx()
+doc <- addSection(doc, landscape = TRUE)
+doc <- addFlexTable(doc,
+                    FT,
+                    body.cell.props = cellProperties(padding = 0))
+doc <- addSection(doc)
+writeDoc(doc, file = "LTX/tables/estimates.docx")
+
+save(tblx,pd,file = "plot_bebi_data.Rdata")
 
 #####################################
 ############### plot ################
@@ -184,7 +205,13 @@ print(xtable(tblx,caption = "Parameter estimates"),file = "LTX/tables/estimates.
 
 
 library(tikzDevice)
-tikz(file = "LTX/figures/estimates.tex", width = 15/2.54, height = 18/2.54)
+
+if(ft == "tex") {
+  tikz(file = "LTX/figures/estimates.tex", width = 15/2.54, height = 18/2.54)
+} else {
+  postscript("LTX/figures/eps/Fig3_estimates.eps", width = 17.4/2.54, height = 18/2.54, paper = "a4", horizontal = F, pagecentre = T)
+}
+
 
 mat = matrix(c(1,1,1,2,2),ncol = 5)
 layout(mat = mat)
@@ -203,10 +230,10 @@ abline(v = 0, col = "grey",lty = 2)
 k = 0
 yos = seq(-.125,.125,length = 2)
 cols = brewer.pal(3,"Dark2")[1:2]
-pchs = 15:16
+bgs = c(cols[1],"white")
+pchs = 21:22
 for (est in c("ipw","ar")) {
   k = k+1
-  points(pd[[paste0("m_",est)]],pd$y + yos[k], pch = pchs[k], col = cols[k],cex = 1.5)
   segments(x0 = pd[[paste0("hdi50l_",est)]],
            x1 = pd[[paste0("hdi50u_",est)]],
            y0 = pd$y + yos[k],
@@ -215,6 +242,7 @@ for (est in c("ipw","ar")) {
            x1 = pd[[paste0("hdi90u_",est)]],
            y0 = pd$y + yos[k],
            col = cols[k],lwd = 1)
+  points(pd[[paste0("m_",est)]],pd$y + yos[k], pch = pchs[k], col = cols[k],cex = 1.5,bg = bgs[k])
 }
 
 lbs = gsub("small_fga","SGA",pd$var)
@@ -223,17 +251,18 @@ lbs = gsub("FREQ","freq",lbs)
 lbs = gsub("TYPUNITS","typunits",lbs)
 axis(2,at = pd$y,labels = lbs, las = 2)
 
-legend(x = par("usr")[1], y = 17.4,
-       col = c(cols,"black","black"),
-       pch = c(pchs),
-       pt.cex = c(2,2,0,0),
-       cex = 1.25,
-       legend = c("AME$_{IPW}$","AME$_{AR}$","50\\% HDI", "90\\% HDI"),
-       lwd = c(0,0,3,1),
-       lty = c(1,1,1,1),
-       bty = "n",
-       horiz = T,
-       xpd = T,x.intersp=0)
+legend("topleft",
+       col = cols, pt.bg = bgs,pch = c(pchs),pt.cex = c(2,2),
+       c(ifelse(ft == "tex","IPPW",expression("AME"["IPPW"])),
+         ifelse(ft == "tex","AR",expression("AME"["AR"]))),
+       title = "AME (mean)",
+       bty = "n")
+legend("topright",
+       lwd = c(3,1),
+       c(ifelse(ft == "tex","50\\%","50%"),
+         ifelse(ft == "tex","90\\%","90%")),
+       title = "HDI",
+       bty = "n")
 
 abline(h = (n-1-.5)+c(-.03,.03))
 abline(h = (n-1-6-.5)+c(-.03,.03))
@@ -258,10 +287,10 @@ plot(0,
      ylim = range(pd[,grep("y",names(pd)),with = F]),
      xlim = xlim,
      ylab = "",
-     xlab = "bias",
+     xlab = "bias due to self selection & loss to follow up",
      yaxt = "n")
 #abline(v = 0, col = "grey",lty = 2)
-abline(v = c(-.5,.5), col = "red",lty = 2)
+abline(v = c(-.5,.5), col = "red",lty = 2, xpd = F)
 pd$y0a = pd$y + min(yos)
 pd$y0b = pd$y + max(yos)
 segments(x0 = sl(pd$hdi90l_bias),x1 = sl(pd$hdi90u_bias),y0 = pd$y0b, lwd = 1)
@@ -271,26 +300,27 @@ segments(x0 = sl(pd$hdi50l_biasm),x1 = sl(pd$hdi50u_biasm),y0 = pd$y0a, lwd = 3,
 
 
 cols = c("black","black","blue")
-pchs = c(17,17,18)
-points(sl(pd$m_bias),pd$y0b, col = cols[1], pch = pchs[1],cex = 2)
-points(sl(pd$m_biasm),pd$y0a, col = cols[3], pch = pchs[3],cex = 2)
+pchs = c(23,23,24)
+bgs = c(cols[1:2],"white")
+points(sl(pd$m_bias),pd$y0b, col = cols[1], pch = pchs[1],cex = 1.5, bg = bgs[1])
+points(sl(pd$m_biasm),pd$y0a, col = cols[3], pch = pchs[3],cex = 1.5, bg = bgs[3])
 
 
-legend(x = par("usr")[1], y = 17.4,
-       col = c("white","black","blue"),
-       pch = c(pchs),
-       pt.cex = c(0,2,2),
+legend("topleft",
+       col = c("black","blue"),
+       pch = pchs[2:3],
+       pt.bg = bgs[2:3],
+       pt.lwd = 1,
+       pt.cex = c(1.5,1.5),
        cex = 1.25,
-       legend = c(" ",
-                  "$\\delta/\\sigma_{IPW}$",
-                  "$\\delta/\\mu_{IPW}$"),
-       lwd = c(0,0,0),
-       lty = c(0,0,0),
+       legend = c(ifelse(ft == "tex","$\\delta/\\sigma_{IPW}$",expression(paste(delta,"/",sigma["IPPW"]))),
+                  ifelse(ft == "tex","$\\delta/\\mu_{IPW}$",expression(paste(delta,"/",mu["IPPW"])))),
+       lwd = c(0,0),
+       lty = c(0,0),
        bty = "n",
-       horiz = T,
        xpd = T, text.width = 2)
-abline(h = (n-1-.5)+c(-.03,.03))
-abline(h = (n-1-6-.5)+c(-.03,.03))
+abline(h = (n-1-.5)+c(-.03,.03),xpd = F)
+abline(h = (n-1-6-.5)+c(-.03,.03),xpd = F)
 
 dev.off()
 
@@ -341,8 +371,12 @@ names(p_in_rope_bias) = gsub("TYPUNITS","typunits",names(p_in_rope_bias) )
 names(p_in_rope_bias) = gsub("EFFUNITS","effunits",names(p_in_rope_bias) )
 names(p_in_rope_bias) = gsub("FREQ","freq",names(p_in_rope_bias) )
 
+if(ft == "tex") {
+  tikz(file = "LTX/figures/ROPE_plots.tex", width = 15/2.54, height = 15/2.54)  
+} else {
+  postscript("LTX/figures/eps/ROPE_plots.eps", width = 17.4/2.54, height = 17.4/2.54)
+}
 
-tikz(file = "LTX/figures/ROPE_plots.tex", width = 15/2.54, height = 15/2.54)
 par(mar=c(2,2,1.5,.01), mgp=c(1,.2,0), tck=.01, mfrow = c(4,4))
 for (k in 1:length(p_in_rope_bias)) {
   plot_ropehdi(p_in_rope_bias[[k]],
@@ -352,7 +386,16 @@ for (k in 1:length(p_in_rope_bias)) {
 }
 dev.off()
 
-tikz(file = "LTX/figures/logRRs.tex", width = 15/2.54, height = 18/2.54)
+
+
+
+if (ft == "tex") {
+  tikz(file = "LTX/figures/logRRs.tex", width = 15/2.54, height = 18/2.54)
+} else {
+  postscript(file = "LTX/figures/eps/logRRs.eps", width = 15/2.54, height = 18/2.54)
+}
+
+
 par (mar=c(3,8,1,1),xpd = F,mgp=c(1.75,.5,0), tck=.01, mfrow = c(1,1))
 plot(0, type = "n",
      ylim = range(pd[,grep("y",names(pd)),with = F]),
@@ -360,7 +403,7 @@ plot(0, type = "n",
      ylab = "",
      xlab = "log(RR) [bias in ROPE]",
      yaxt = "n", bty = "n", xaxt = "n")
-rect(-log(3),par("usr")[3],log(3),par("usr")[4],col = adjustcolor("gray",alpha = .3), border = NA)
+rect(-log(3),par("usr")[3],log(3),par("usr")[4],col = "gray88", border = NA)
 xticks = sort(c(-log(c(3,10,30,100)),log(c(3,10,30,100))))
 axis(1,at = xticks, labels = exp(abs(xticks)))
 abline(v = xticks,lty = 3, col = "grey")
@@ -392,7 +435,7 @@ text(mean(log(c(100,exp(par("usr")[2])))),3,"extreme",srt = 90)
 legend("topright",
        pch = 15,
        col = c("blue","black"),
-       legend = c("$\\delta/\\mu_{IPW}$",
-                  "$\\delta/\\sigma_{IPW}$"),
+       legend = c(ifelse(ft == "tex","$\\delta/\\sigma_{IPW}$",expression(paste(delta,"/",sigma["IPW"]))),
+                  ifelse(ft == "tex","$\\delta/\\mu_{IPW}$",expression(paste(delta,"/",mu["IPW"])))),
        box.col = "white")
 dev.off()

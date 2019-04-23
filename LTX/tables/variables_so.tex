@@ -1,0 +1,45 @@
+\documentclass[a4paper]{article}
+
+\begin{document}
+	\begin{table}
+		\begin{tabular}{lllll}
+			\hline
+			Type & Variable & Description & Source & Used in\\ 
+			\hline
+			\multicolumn{5}{l}{Outcome:} \\
+			& child ADHD & SS ADHD symptom ratings & Q6 & IAU\\ 
+			\multicolumn{5}{l}{Exposures, birth-related:} \\
+			& small f. gest. age & 1 = among 5\% lightest in gest. wk. & MBRN & IAU\\ 
+			& preterm & 1 = birthweek $<$ 37 & MBRN & IAU\\ 
+			\multicolumn{5}{l}{Exposures, Parental mental health:} \\
+			& m. drug use & used any drug 1 = yes, no = 0 & Q1 & IAU\\ 
+			& m. drug use score & ability score from IRT model & Q1 & IAU\\ 
+			& m. LTH & SS Lifetime History of Depression & Q1 & IAU\\ 
+			& m. SCL5 & SS Symptom Check list & Q1 & IAU\\ 
+			& p. drug use & used any drug 1 = yes, no = 0 & QF & IAU\\ 
+			& p. drug use score & ability score from IRT model & QF & IAU\\ 
+			\multicolumn{5}{l}{Exposures, parental use of legal drugs:} \\
+			& m. smoking & smoking in pregn.: 1 = yes, 0 = no & Q1 & IAU\\ 
+			& m. num. cigarettes & cigarettes per day in pregnancy & Q1 & IAU\\ 
+			& m. alc. freq. & in pregnancy, 3 ordered categories & Q1 & IAU\\ 
+			& m. eff. units. alc. & effective units of alcohol & Q1 & IAU\\ 
+			& p. smoking & smoking, 1 = yes, 0 = no & QF & IAU\\ 
+			& p. num. cigarettes & cigarettes per day & QF & IAU\\ 
+			& p. alc. freq. & drinking per week & QF & IAU\\ 
+			& p. typ. units. alc. & typical number of units alcohol  & QF & IAU\\
+			\multicolumn{5}{l}{Adjustment variables:} \\ 
+			& child sex & 0 = boys, 1 = girls & MBRN & IA\\ 
+			& m. BMI deviat. & log(BMI/mode of BMI) & Q1 & IA \\ 
+			& m. ADHD & SS ASRS & Q6 & IA \\ 
+			& p. ADHD & SS ASRS & QF & IA \\
+			& p. age & 8 ordered categories & QF & IA \\ 
+			& p. education & 4 ordered categories & QF & IA \\ 
+			\multicolumn{5}{l}{Participation predictors:} \\ 
+			& m. education & 4 ordered categories & Q1  & I$_S$A\\ 
+			& m. age & 6 ordered categories & Q1  & I$_S$A\\ 
+			& Parity & number of children born & MBRN  & I$_S$A\\ 
+			\hline
+		\end{tabular}
+	\end{table}
+\end{document}
+

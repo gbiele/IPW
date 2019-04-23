@@ -12,9 +12,6 @@ ssb[, Age := ordered(Age,levels = c("<20", "20-24", "25-29", "30-34", "35-39", "
 ssb[,number_children := gsub("\\+","",number_children)]
 ssb[,n_unclassified := sum(.SD,na.rm = T), by = 1:nrow(ssb),.SDcols = c("Unknown","Elementary", "High-school", "Bachelor", "Master")]
 ssb[, n_unclassified := total_n - n_unclassified]
-#ssb[Age == "<20" & is.na(Bachelor), Bachelor := 0]
-
-
 
 
 setnames(ssb,c("Unknown","Elementary", "High-school", "Bachelor", "Master"),
@@ -187,6 +184,7 @@ age_edu_table$group[(1:15)[-seq(1,15,5)]] = ""
 age_edu_table[["<20"]] = as.character(age_edu_table[["<20"]])
 age_edu_table[["<20"]] = gsub("NaN","-",age_edu_table[["<20"]])
 print.xtable(xtable(age_edu_table,
+                    digits = 1,
                     caption = paste0("Proportion of mothers split by age and education in study sample
                                      in study sample  (n = ",
                                      round(sum(moba_l$N)),
@@ -198,6 +196,13 @@ print.xtable(xtable(age_edu_table,
                     label = "table:age_edu"),
              include.rownames = F,
              file = "LTX/tables/age_edu_v9.tex")
+
+library(ReporteRs)
+doc <- docx()
+doc <- addFlexTable(doc,
+                    vanilla.table(age_edu_table),
+                    body.cell.props = cellProperties(padding = 0))
+writeDoc(doc, file = "LTX/tables/age_edu.docx")
 
 library(vcd)
 data = merge(moba_l,ssb_l,by = c("Age","edu","parity"))
@@ -230,3 +235,48 @@ age_parity_table = cbind(data.table(group = sort(rep(c("Moba","Pop.","xCov"),4))
 #                    label = "table:age_parity"),
 #             include.rownames = F,
 #             file = "4paper/LTX/tables/age_parity.tex")
+
+
+## plot for reviewer 2
+library(ggmosaic)
+library(cowplot)
+library(tikzDevice)
+
+t_ssb = data.frame( xtabs(N~edu + Age,ssb_l)/sum(ssb_l$N))
+t_moba = data.frame( xtabs(N~edu + Age,moba_l)/sum(moba_l$N))
+t_cov = data.frame(xtabs(N~edu + Age,moba_l)/xtabs(N~edu + Age,ssb_l))
+
+t_ssb$edu = gsub("High-school","HS",t_ssb$edu)
+t_moba$edu = gsub("High-school","HS",t_moba$edu)
+
+t_ssb$edu = ordered(t_ssb$edu,levels = c("Elementary","HS","Bachelor","Master"))
+t_moba$edu = ordered(t_moba$edu,levels = c("Elementary","HS","Bachelor","Master"))
+
+p1 = ggplot(t_ssb) + 
+  geom_mosaic(aes(weight = Freq,x=product(Age, edu))) + 
+  xlab("Education") + ylab("Age")
+
+p2 = ggplot(t_moba) + 
+  geom_mosaic(aes(weight = Freq,x=product(Age, edu))) + 
+  xlab("Education") + ylab("Age")
+
+p3 = ggplot(t_cov, aes(x = edu, y = Freq*100)) + 
+  geom_hline(yintercept = 50, col = "grey") + 
+  geom_hline(yintercept = 0, col = "grey") + 
+  geom_bar(stat = "identity") + 
+  geom_text(aes(x = edu, 
+                y = Freq*100 + 8, label = round(Freq*100, 1))) +
+  facet_grid(Age~.) + 
+  xlab("Education") + ylab("Coverage") + 
+  coord_cartesian(xlim = c(1, 4)) +
+  ylim(0,50) 
+
+p4 = plot_grid(p1,p2,ncol = 1)
+
+tikz(file = "LTX/figures/prop_moba_ssb.tex", width = 15/2.54, height = 16/2.54)
+print(p4)
+dev.off()
+
+tikz(file = "LTX/figures/coverage.tex", width = 15/2.54, height = 16/2.54)
+print(p3)
+dev.off()

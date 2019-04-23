@@ -4,10 +4,40 @@ library(RColorBrewer)
 library(tikzDevice)
 library(xtable)
 
+rename_vars = function(x, ft = F) {
+  x = gsub("YearsEdu", "Years\neducation", x)
+  x = gsub("AgeFirstBirth", "Age at\nfirst birth", x)
+  x = gsub("NumChildrBorn", "Number\nchildr. born", x)
+  x = gsub("BirthWeight", "Birthweight", x)
+  x = gsub("AlcUse", "Alcohol\nuse", x)
+  x = gsub("CigPerDay", "Cigarettes\nper day", x)
+  x = gsub("EverSmoked", "Ever\nsmoked", x)
+  x = gsub("Cannabis", "Cannabis\nuse", x)
+  x = gsub("SubstAbuse", "Substance\nabuse", x)
+  x = gsub("Anxiety", "Anxiety\ndisorder", x)
+  x = gsub("DeprSymp", "Depression\nsymptoms", x)
+  x = gsub("ADHD", "ADHD", x)
+  
+  my_levels = c("Years\neducation", "Age at\nfirst birth", 
+                "Number\nchildr. born", "Birthweight", 
+                "Alcohol\nuse", "Cigarettes\nper day" ,
+                "Ever\nsmoked", "Cannabis\nuse", "Substance\nabuse",
+                "Anxiety\ndisorder", "Depression\nsymptoms", "ADHD")
+  if(ft == T) {
+    x = gsub("\n"," ", x)
+    my_levels = gsub("\n"," ", my_levels)
+    my_levels = my_levels[c(12,1:11)]
+  }
+  
+  x = factor(x, levels = my_levels)
+  
+  return(x)
+}
+
 vn = c("p1","p2","rg","se","z","p","h2_obs","h2_obs_se","h2_in","h2_int_se","gcov_int","gcov_int_se")
 fls = dir("GWASresults/my_data/rg")
 for ( f in fls) {
-  tmp = fread(paste0("GWASresults/my_data/rg/",f),skip = 61)
+  tmp = fread(paste0("GWASresults/my_data/rg/",f),skip = 59)
   setnames(tmp,names(tmp),vn)
   if (f == dir("GWASresults/my_data/rg")[1]) {
     rg = tmp
@@ -19,7 +49,6 @@ for ( f in fls) {
 
 rg[,p1 := gsub(".sumstats.gz","",p1)]
 rg[,p2 := gsub(".sumstats.gz","",p2)]
-
 
 pse = function(mstr){
   return(c(as.numeric(strsplit(strsplit(mstr,":")[[1]][2]," ")[[1]][2]),
@@ -49,6 +78,12 @@ for ( f in fls) {
     h2 = rbind(h2,geth2stats(tmp)) 
   }
 }
+
+rg = rg[p1 != "BWfirst" & p2 != "BWfirst"]
+rg[,p1 := sub("subabu","SubstAbuse", p1)]
+rg[,p2 := sub("subabu","SubstAbuse", p2)]
+h2 = h2[var != "BWfirst"]
+h2[,var := sub("subabu","SubstAbuse", var)]
 
 
 rm(tmp,vn,f)
@@ -99,6 +134,11 @@ pdata  = rbind(my_rg[,c("V1","V2","rg","z"),with = F],
 pdata$az = abs(pdata$z)
 pdata$s = sqrt(pdata$az)/10
 
+
+#########################################
+############ plot figure ################
+#########################################
+
 res = 101
 # blue red
 clrs = colorRampPalette( c("blue", "white", "red"), space="rgb")(res)
@@ -126,34 +166,25 @@ pdata[V1 == V2,clr := bw]
 
 pdata$cex = (1-pdata$p)*4.5
 
+pdata$V1 = rename_vars(pdata$V1)
+pdata$V2 = rename_vars(pdata$V2)
 
-trait_order = rownames(hm$carpet)
-# trait_order = c(lbs[1:which(lbs == "ADHD")],
-#                 "ADHD_PCG",
-#                 lbs[(which(lbs == "ADHD")+1):(which(lbs == "ADHD_PCG")-1)],
-#                 lbs[(which(lbs == "ADHD_PCG")+1):length(lbs)])
-trait_order = c("YearsEdu", "AgeFirstBirth", "NumChildrBorn",
-                "BirthWeight",  "AlcUse", "CigPerDay" , "EverSmoked",
-                "Cannabis", "Anxiety", "DeprSymp", "ADHD")
-
-pdata$x = as.numeric(factor(pdata$V1, levels = trait_order))
-pdata$y = as.numeric(factor(pdata$V2, levels = rev(trait_order)))
+pdata$x = as.numeric(pdata$V1)
+pdata$y = as.numeric(factor(pdata$V2, levels = rev(levels(pdata$V2))))
 
 
 nvars = length(unique(pdata$V1))
 
-#########################################
-############ plot figure ################
-#########################################
+tikz("LTx/figures/rg.tex", height = 13/2.54, width = 11/2.54, standAlone = F)
+#postscript("LTx/figures/eps/Fig2_rg.eps", height = 15/2.54, width = 12.9/2.54, paper = "a4", horizontal = F, pagecentre = T)
 
-tikz("LTx/figures/rg.tex", height = 15/2.54, width = 11/2.54)
 layout(matrix(c(rep(1,3),2),ncol = 1))
 
 scale_z = max(sqrt(pdata$az))/.5
 pdata$s = sqrt(pdata$az)/scale_z
 
 
-par(mar = c(0,7,6,0.5))
+par(mar = c(0,7,1,0.5))
 plot(0,type = "n", xlim = c(.5,nvars+.5), ylim = c(.5,nvars+.5),
      xaxt = "n", yaxt = "n",
      ylab = "", xlab = "",bty = "n")
@@ -176,8 +207,6 @@ for (r in 1:nrow(pdata)) {
     text(pdata$x[r],pdata$y[r],
          substr(sprintf("%0.2f", pdata$rg[r]),2,4),cex = .75)
   }
-  
-  #draw.circle(pdata$x[r],pdata$y[r],radius = s, col = pdata$clr[r],border = NA)
 }
 segments(x0 = rep(0,nvars)+.5,
          y0 = (1:(nvars+1))-.5,
@@ -188,13 +217,15 @@ segments(y0 = rep(0,nvars)+.5,
          y1 = rep(nvars,nvars)+.5,
          col = "lightgray")
 
-lbs = sub("_","-",trait_order)
-#lbs = sub("Schiz","Schizophrenia",lbs)
-lbs = sub("AlcDep","AlcDependence",lbs)
-lbs[lbs == "ADHD"] = "ADHD"
-axis(2,at = 1:nvars, labels = rev(lbs),las = 2, tick = F,line = -1.5)
-lbs = sub("AlcDependence","AlcDep.",lbs)
-text(1:nvars, par("usr")[2] , labels = lbs, srt = 45, pos = 4, xpd = TRUE,offset = .1)
+lbs = sub("_","-",levels(pdata$V1))
+mtext(paste0(1:length(lbs),c(rep("\n ",11),"")),2,at = rev(1:nvars), 
+      las = 2, cex = .75, adj = 0, line = 6.75)
+mtext(lbs,2,at = rev(1:nvars), 
+      las = 2, cex = .75, adj = 0, line = 5.25)
+mtext(1:nvars,3,at = 1:nvars, cex = .75, line = -1)
+#axis(2,at = 1:nvars, labels = rev(lbs),las = 2, tick = F,line = -1.5)
+#lbs = sub("AlcDependence","AlcDep.",lbs)
+#text(1:nvars, par("usr")[2] , labels = lbs, srt = 45, pos = 4, xpd = TRUE,offset = .1)
 #text(1:nvars, par("usr")[2] , labels = lbs, srt = 360-45, pos = 2, xpd = TRUE,offset = .1)
 
 
@@ -262,40 +293,50 @@ dev.off()
 ################# make table #################
 ##############################################
 
-setnames(h2,c("V1","h2","h2_se","z"),
+setnames(h2,
+         c("V1","h2","h2_se","z"),
          c("p2","h2p2","se(h2p2)","z(h2p2)"))
 tab = rg[,c("p1","p2","rg","se","z"),with = F]
 for (k in which(tab$p2 == "ADHD")) {
   tab[["p2"]][k] = tab[["p1"]][k]
   tab[["p1"]][k] = "ADHD"
 }
-lvls = c("ADHD","YearsEdu","AgeFirstBirth","NumChildrBorn","BirthWeight","EverSmoked","CigPerDay","AlcUse","DeprSymp","Anxiety","Cannabis")
 
+
+for (k in 1:nrow(tab)) {
+  p1 = tab$p1[k]
+  p2 = tab$p2[k]
+  if (as.numeric(rename_vars(p2,ft = T)) < as.numeric(rename_vars(p1,ft = T))) {
+    tab$p1[k] = p2
+    tab$p2[k] = p1
+  }
+}
 
 tab = merge(tab,
             h2[,c("p2","h2p2","se(h2p2)","z(h2p2)"),with = F],
             by = "p2",
-            ll.x = T)
+            all.x = T)
 setnames(h2,
          c("p2","h2p2","se(h2p2)","z(h2p2)"),
          c("p1","h2p1","se(h2p1)","z(h2p1)"))
 tab = merge(tab,
             h2[,c("p1","h2p1","se(h2p1)","z(h2p1)"),with = F],
             by = "p1",
-            ll.x = T)
+            all.x = T)
+tab[,p1 := rename_vars(p1, ft = T)]
+tab[,p2 := rename_vars(p2, ft = T)]
+
 
 setnames(tab,
          c("rg","se","z"),
          c("rG","se(rG)","z(rG)"))
 
-tab$p1 = ordered(tab$p1, levels = lvls)
-tab$p2 = ordered(tab$p2, levels = lvls)
 setkeyv(tab,c("p1","p2"))
 
 xtab = xtable(tab, 
               digits=c(0,0,0,2,2,1,2,2,1,2,2,1),
-              caption = "SNP based genetic correlations and heritability estimates.")
+              caption = "SNP based genetic correlations and heritability estimates from publicly available GWAS summary statistics.")
 print(xtab, hline.after=c(-1, 0),
       tabular.environment = "longtable",
-      file = "LTX/tables/rg_h.tex",
+      file = "LTX/tables/rg_h+.tex",
       include.rownames=FALSE)

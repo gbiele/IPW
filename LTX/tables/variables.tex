@@ -1,41 +1,38 @@
-% latex table generated in R 3.3.1 by xtable 1.8-2 package
-% Mon Feb 06 15:41:31 2017
-\begin{table}[ph!]
-	
-\centering
-\begin{tabular}{llll}
-  \hline
-  Variable group & Variable & Description & Source \\ 
-  \hline
-  Outcome & ADHD & SS of 11 ADHD symptoms & Q6 \\ 
-  Birth & SGA & among 5\% lightest in gestat. wk. & MBRN \\ 
-  Birth & preterm & preterm, birthweek $<$ 37 & MBRN \\
-  Mental Health & mDRUGS & used any illicit drug yes=1, no=0 & Q1 \\ 
-  Mental Health & mDRUGS.score & ability score from IRT model & Q1 \\ 
-  Mental Health & mLTH & SS lifetime history of depression & Q1 \\ 
-  Mental Health & mSCL & SS Symptom Check list & Q1 \\ 
-  Mental Health & fDRUGS & used any drug yes=1, no=0 & F \\ 
-  Mental Health & fDRUGS.score & ability score from IRT model & F \\ 
-  Legal Drugs & mSMOKE & mothers' smoking, yes=1, no=0  & Q1 \\ 
-  Legal Drugs & mSMOKE.nCs & mothers' smoking, cigarettes per day & Q1 \\
-  Legal Drugs & mALC.freq & drinking per week in pregnancy & Q1 \\ 
-  Legal Drugs & mALC.effunits & effective units alcohol & Q1 \\
-  Legal Drugs & fSMOKE & fathers' smoking, ever=1, never=0 &  F \\ 
-  Legal Drugs & fSMOKE.nCs & fathers' smoking, cigarettes per day &  F \\ 
-  Legal Drugs & fALC.freq & drinking per week during pregnancy &  F \\   
-  Legal Drugs & fALC.effunits & typical number of units alcohol &  F \\ 
-  control & cSEX & boys=0, girls=1 & MBRN \\ 
-  control & fEDU & fathers' educat., 4 ordered categories & F \\ 
-  control & fAge & center of age categories for fathers & F \\ 
-  control & mBMIdev & log(mBMI/mBMImode) & Q1 \\ 
-  Pred.part./ctrl. & mEDU & mothers' educat., 4 ordered categories & Q1 \\ 
-  Pred.part./ctrl. & mAge & mothers' age (categorized) & Q1 \\ 
-  Pred.part./ctrl. & Parity & number of children born (0, 1, 2, >2) & MBRN \\ 
-   \hline
-\end{tabular}
-\caption{Description of variables.
-	\newline Q6 = MoBa questionnaire at child age 3, Q1 =  MoBa questionnaire at pregnancy week 20, F = Moba fathers' questionnaire (week 20), MBRN = Medical Birth Registry of Norway, SS = sum score. SGA = small for gestational age. Mothers' smoking and drinking behavior refers to the first 20 weeks of the pregnancy. 
-	\newline Outcome = outcome variable, Birth = Birth related exposures, Mental health = exposures related to mothers' and father's mental health, Legal Drugs = exposures from drinking and smoking, control = adjustment variables, Pred.part./ctrl. = predictors of participation (control variables in non-weighted analyses).
-	Variable names starting with m refer to mothers, f refers to fathers, and c refers to children. All continuous and count variables except parity were re-scaled to have a mean of zero and a standard deviation of one.} 
-\label{table:variables}
-\end{table}
+\begin{tabular}{lllll}
+		\hline
+		Type & Variable & Description & Source & Used in\\ 
+		\hline
+		\multicolumn{5}{l}{Outcome:} \\
+		& child ADHD & SS ADHD symptom ratings & Q6 & IAU\\ 
+		\multicolumn{5}{l}{Exposures, birth-related:} \\
+		& small f. gest. age & 1 = among 5\% lightest in gest. wk. & MBRN & IAU\\ 
+		& preterm & 1 = birthweek $<$ 37 & MBRN & IAU\\ 
+		\multicolumn{5}{l}{Exposures, Parental mental health:} \\
+		& m. drug use & used any drug 1 = yes, no = 0 & Q1 & IAU\\ 
+		& m. drug use score & ability score from IRT model & Q1 & IAU\\ 
+		& m. LTH & SS Lifetime History of Depression & Q1 & IAU\\ 
+		& m. SCL5 & SS Symptom Check list & Q1 & IAU\\ 
+		& p. drug use & used any drug 1 = yes, no = 0 & QF & IAU\\ 
+		& p. drug use score & ability score from IRT model & QF & IAU\\ 
+		\multicolumn{5}{l}{Exposures, parental use of legal drugs:} \\
+		& m. smoking & smoking in pregn.: 1 = yes, 0 = no & Q1 & IAU\\ 
+		& m. num. cigarettes & cigarettes per day in pregnancy & Q1 & IAU\\ 
+		& m. alc. freq. & in pregnancy, 3 ordered categories & Q1 & IAU\\ 
+		& m. eff. units. alc. & effective units of alcohol & Q1 & IAU\\ 
+		& p. smoking & smoking, 1 = yes, 0 = no & QF & IAU\\ 
+		& p. num. cigarettes & cigarettes per day & QF & IAU\\ 
+		& p. alc. freq. & drinking per week & QF & IAU\\ 
+		& p. typ. units. alc. & typical number of units alcohol  & QF & IAU\\
+		\multicolumn{5}{l}{Adjustment variables:} \\ 
+		& child sex & 0 = boys, 1 = girls & MBRN & IA\\ 
+		& m. BMI deviat. & log(BMI/mode of BMI) & Q1 & IA \\ 
+		& m. ADHD & SS ASRS & Q6 & IA \\ 
+		& p. ADHD & SS ASRS & QF & IA \\
+		& p. age & 8 ordered categories & QF & IA \\ 
+		& p. education & 4 ordered categories & QF & IA \\ 
+		\multicolumn{5}{l}{Participation predictors:} \\ 
+		& m. education & 4 ordered categories & Q1  & I$_S$A\\ 
+		& m. age & 6 ordered categories & Q1  & I$_S$A\\ 
+		& Parity & number of children born & MBRN  & I$_S$A\\ 
+		\hline
+	\end{tabular}

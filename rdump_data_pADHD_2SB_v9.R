@@ -9,7 +9,7 @@ k = 1
 
 avg_sipw = c()
 
-for (cimp in 11:20) {
+for (cimp in 1:20) {
   my_data = my_data_imps[imp == as.character(cimp)]
   
   load(paste0("data/IPW_i",cimp,"_pADHD_2SB_v9.Rdata"))
@@ -38,11 +38,12 @@ for (cimp in 11:20) {
                     Y = my_data$cADHD,
                     K = length(attr(terms(f),"term.labels")),
                     K_ipw = length(attr(terms(f),"term.labels")) - ifelse(analyses[[a]]$adjust_ipw,0,1)*length(ipw_vars),
+                    K_raw = length(attr(terms(f),"term.labels")) - length(ipw_vars) - length(ctrl_vars),
                     X = as.matrix(model.matrix(f,my_data))[,-1],
                     ipw_idx = my_data$ipw_idx,
                     ipw_weights = sipw_fixed_sum,
                     id = rids[k])
-    save(standata,file = paste0("data/pADHD_2SB/a",a,"_i",cimp,"x.Rdata"))
+    save(standata,file = paste0("data/pADHD_2SB/a",a,"_i",cimp,"x+raw.Rdata"))
     k = k + 1
   }
 }
