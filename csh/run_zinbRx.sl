@@ -23,7 +23,9 @@ set analysis = $argv[2]
 set imp = $argv[3]
 set chain = $argv[4]
 
-module load R
+module purge
+module load R/3.5.0.gnu
+module load gcc/6.3.0
 
-Rscript run_zinb.R $model $analysis $imp $chain > a{$analysis}_i{$imp}_c{$chain}_m{$model}s.Rout
+Rscript run_zinbx+raw.R $model $analysis $imp $chain > a{$analysis}_i{$imp}_c{$chain}_m{$model}x.Rout
 

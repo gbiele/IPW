@@ -25,7 +25,7 @@ if (m == 1) {
 } else {
   sm = 1
 }
-load(paste0("../data/pADHD_2SB/a",a,"_i",i,".Rdata"))
+load(paste0("../data/pADHD_2SB/a",a,"_i",i,"+.Rdata"))
 
 setwd(system("echo $SCRATCH", intern = T))
 
@@ -45,11 +45,11 @@ sroot = "/cluster/home/guidopb/programming/R/representativeness/IPW/samples/pADH
 file.copy(sample_file,
           paste0(sroot,
                  "bebi_a",a,"_i",i,"_c",c,"_",
-                 ifelse(m == 1,"logit","logit"),".csv"),
+                 ifelse(m == 1,"logit","logit"),"+.csv"),
                  overwrite = T)
 
 save(sf,file = paste0(sroot,
                       "bebi_a",a,"_i",i,"_c",c,"_",
-                      ifelse(m == 1,"logit","logit"),".Rdata"))
+                      ifelse(m == 1,"logit","logit"),"+.Rdata"))
                              
 

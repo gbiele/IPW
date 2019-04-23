@@ -1,7 +1,7 @@
 #!/bin/csh 
 
 set imps = $argv[1]
-set imp = 1
+set imp = 6
 
 while ($imp <= $imps)
   echo $imp

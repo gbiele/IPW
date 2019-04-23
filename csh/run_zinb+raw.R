@@ -21,11 +21,11 @@ library(rstan)
 #                                  file.path(getwd(), 'get_iter.hpp'), '"\n'),
 #                auto_write = T)
 if (m == 1) {
-  sm = readRDS("../stan/bebi_logit_deltaAR_2SB.rds") 
+  sm = readRDS("../stan/bebi_logit_deltaAR_2SB+raw.rds") 
 } else {
   sm = 1
 }
-load(paste0("../data/pADHD_2SB/a",a,"_i",i,".Rdata"))
+load(paste0("../data/pADHD_2SB/a",a,"_i",i,"x+raw.Rdata"))
 
 setwd(system("echo $SCRATCH", intern = T))
 
@@ -45,11 +45,11 @@ sroot = "/cluster/home/guidopb/programming/R/representativeness/IPW/samples/pADH
 file.copy(sample_file,
           paste0(sroot,
                  "bebi_a",a,"_i",i,"_c",c,"_",
-                 ifelse(m == 1,"logit","logit"),".csv"),
+                 ifelse(m == 1,"logit","logit"),"x+raw.csv"),
                  overwrite = T)
 
 save(sf,file = paste0(sroot,
                       "bebi_a",a,"_i",i,"_c",c,"_",
-                      ifelse(m == 1,"logit","logit"),".Rdata"))
+                      ifelse(m == 1,"logit","logit"),"x+raw.Rdata"))
                              
 

@@ -11,18 +11,18 @@ else
 endif
 
 set cn = $start_chain
-set imp = 2
+set imp = 11
 
 if ($analysis == 2) then
-  set time = 12
+  set time = 4
 else
- set time = 12
+  set time = 4
 endif
 
 while ($imp <= $imputations)
   while ($cn <= $end_chain) 
-    set outfile = /cluster/home/guidopb/programming/R/representativeness/IPW/csh/slurm-%j-a{$analysis}-i{$imp}-c{$cn}.out
-    sbatch -J a{$analysis}-i{$imp}-c{$cn} -o $outfile --time={$time}:00:00 run_zinbR.sl 1 $analysis $imp $cn
+    set outfile = /cluster/home/guidopb/programming/R/representativeness/IPW/csh/slurm-%j-a{$analysis}-i{$imp}-c{$cn}x.out
+    sbatch -J a{$analysis}-i{$imp}-c{$cn}x -o $outfile --time={$time}:00:00 run_zinbRx.sl 1 $analysis $imp $cn
     echo $outfile 
     @ cn++
     sleep 3
