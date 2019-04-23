@@ -25,7 +25,7 @@ mx2 = stan_glmer(cbind(N.moba, N.ssb - N.moba) ~ 1 + ageNs + ageN2s + (ageNs + a
 k = 0
 test = T
 while(test) {
-  pp = posterior_predict(mx2x)
+  pp = posterior_predict(mx2)
   test = sum(pp == 0) > 0
   k = k + 1
   if(k == 2000) test = F
