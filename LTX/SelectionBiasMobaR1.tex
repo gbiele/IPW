@@ -5,7 +5,7 @@
 
 \usepackage{ifthen}
 \newboolean{ismanus}
-\setboolean{ismanus}{true}
+\setboolean{ismanus}{false}
 
 \usepackage{url}
 \usepackage{pgf}
@@ -101,7 +101,7 @@ A related study assessed bias due to loss to follow up by comparing association 
 
 The structural approach to selection bias uses directed acyclic graphs (DAGs \cite{Pearl1995-ss}) to explain the manifestation of bias. It requires information about participation predictors, for example age and education, and their relationship with exposure and outcome. Selection bias manifests if participation or participation predictors are colliders on the causal path between exposure and outcome \cite{Cole2010-za}. \citeauthor{Hernan2004-oz} \cite{Hernan2004-oz} showed that even when there is no direct path from participation predictors to outcome, common unobserved causes of participation predictors and outcome lead to selection bias. This manifests if, in addition, the exposure causes participation or if it causes or shares a common cause with participation predictors (see Figure \ref{fig:f1a} and \ref{fig:f1b}). In the absence of common effects and unobserved common causes, selection bias can still emerge due to effect modification, i.e. when population subgroups have varying participation rates and varying exposure-outcome associations (see Figure \ref{fig:f1c}).
 
-\begin{figure}
+\begin{figure}[h]
 	\centering
 	\ifthenelse{\boolean{ismanus}}{\input{figures/SelectionBiasEmpty}}{
 		\resizebox{!}{4cm}{
