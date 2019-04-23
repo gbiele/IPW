@@ -22,3 +22,8 @@ LTX/old_stuff
 *.aux
 *.gz
 *.ttt
+*.zip
+*.docx
+*.html
+*.out
+*.rds
