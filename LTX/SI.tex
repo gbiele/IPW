@@ -203,6 +203,10 @@ Regression models were estimated with Hamiltonian Monte Carlo sampling as implem
 
 \section{Discussion}
 
+In the main text we use genetic correlations between exposures and participation predictors to argue that a causal structure in which these variables are correlated in the study sample is more plausible than a causal structure in which these variables are uncorrelated in the study sample. This is a central argument, because only if this is that case, is inverse probability weighting  superior to adjusting for participation predictors.
+
+An alternative possibility to check consistency between data an a hypothesized causal structure is to examine implied (conditional) in dependencies. A comparison of figures (1a) and (1b) shows that D should be independent of P given E and L ($D \bot P | L$) for figure (1a) and $D \bot P | E, $for figure (1b), which is the case for our data. However, only figure (1a) but not (1b) implies independence of L and E ($E \bot L$) in the study sample (in (1a) the path between exposure $E$ and participation predictor $L$ is closed by conditioning on P). Because $E$ and  $L$ are in fact dependent in the study sample, the analysis of implied conditional independencies shows that the causal structure in (1b) is a better description of the data obtained from MoBa participants. Therefore, even without the additional information from genetic correlations, the available evidence suggests that the causal structure in figure (1b) rather than (a) describes our data better. (Which implies that adjustment for participation predictors will not control bias).
+
 
 
 %\begin{figure}
