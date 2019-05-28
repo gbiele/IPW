@@ -170,7 +170,7 @@ The estimation of a lower bound for bias involves estimating an IPPW and alterna
 
 Based on this analysis model, we calculated the lower bound bias estimate as the difference between AMEs from the IPPW and AR or UR models, respectively. We standardised the lower bound bias by dividing the difference with either the standard deviation or the mean of the posterior distribution of the IPPW estimate (c.f. \cite{Stuart2010-cj,Nilsen2009-ci}). The latter approach appeals to the intuition that bias is problematic if the comparison standard is known with high precision/certainty, whereas the former appeals to the intuition that bias is problematic if it has a large deviation from the comparison standard. 
 
-To test for bias, we check how much of the posterior distribution of the bias estimate lies within a region of practical equivalence (ROPE, dashed vertical lines in Figure \ref{fig:estimates}), i.e., a bias magnitude that is for practical purposes equivalent with zero \cite{Mascha2011-um}. Earlier research defined deviations of larger than 30\% or 40\% of the standard deviation or mean of comparison standard as problematic \cite{Stuart2010-cj,Nohr2006-uf}. Here, we consider values of less than 0.5 standardised AME differences as practically equivalent with zero. To obtain a measure of risk for bias we calculate the log of the ratio of the posterior distribution inside and outside the ROPE, $log(RR_b)$. For example, a $log(RR_b)$ of -1.6 (3) means that the lower bound bias estimate is five (20) times as likely to lie outside (inside) the ROPE.
+To test for bias, we check how much of the posterior distribution of the bias estimate lies within a region of practical equivalence (ROPE, dashed vertical lines in Figure \ref{fig:estimates}), i.e., a bias magnitude that is for practical purposes equivalent to zero \cite{Mascha2011-um}. Earlier research defined deviations of larger than 30\% or 40\% of the standard deviation or mean of comparison standard as problematic \cite{Stuart2010-cj,Nohr2006-uf}. Here, we consider values of less than 0.5 standardised AME differences as practically equivalent with zero. To obtain a measure of risk for bias we calculate the log of the ratio of the posterior distribution inside and outside the ROPE, $log(RR_b)$. For example, a $log(RR_b)$ of -1.6 (3) means that the lower bound bias estimate is five (20) times as likely to lie outside (inside) the ROPE.
 
 Regression analyses were performed with custom models implemented in the probabilistic programming language Stan \cite{Stan_Development_Team2017-lp} and fit via RStan \cite{Stan_Development_Team_2018-rs}.
 
@@ -210,11 +210,11 @@ While the highest density interval (HDI) of the lower bound bias estimates for t
 \label{fig:estimates}
 \end{figure}
 
-\begin{table}
+\begin{sidewaystable}
 	\ifthenelse{\boolean{ismanus}}{}{\input{tables/estimates-AR.tex}}
 	\caption{Means and 90\% highest density intervals (HDIs) of exposures outcome associations and standardised bias of AR and UR results. $AME_{IPPW}$, $AME_{AR}$: Average marginal effects from IPPW, and AR models, respectively. $\sigma_{IPPW}$ and $\mu_{IPPW}$ are standard deviation and mean of the posterior distribution of the IPPW regression coefficients. See table \ref{tab:estimatesUR} for statistics for the UR model.} 
 	\label{tab:estimatesAR}
-\end{table}
+\end{sidewaystable}
 
 
 
