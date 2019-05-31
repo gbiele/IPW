@@ -45,7 +45,9 @@
 
 \begin{document}
 
-\section{Supplementary Methods}
+\tableofcontents
+
+\section{Supplementary methods}
 
 \paragraph{Imputation of maternal education.} We imputed maternal education in the study sample jointly with all other variables, using the multiple chained imputation procedure implemented in the R package mi. The data set for the imputation included all ca. 90,000 participants who had returned  either the first or the 3 year MoBa questionnaire, and all variables used in the final analysis plus additional variables deemed to be useful for imputation (details in lines 37-49 \href{https://github.com/gbiele/IPW/blob/master/AnalysisBIPW/021\_mi\_utils.R}{here}).
 
@@ -201,11 +203,19 @@ Regression models were estimated with Hamiltonian Monte Carlo sampling as implem
 	\label{fig:ropeplotsUR}
 \end{figure}
 
+\begin{figure}[H]
+	\centering \input{figures/mEDUcors.tex}
+	\caption{Inverse probability of participation weighted correlations based on MoBa data.}
+	\label{fig:educors}
+\end{figure}
+
 \section{Supplementary discussion}
 \subsection{Implied conditional independencies}
 In the main text we use genetic correlations between exposures and participation predictors to argue that a causal structure in which these variables are correlated in the study sample is more plausible than a causal structure in which these variables are uncorrelated in the study sample. This is a central argument, because only if this is that case, is inverse probability weighting  superior to adjusting for participation predictors.
 
-An alternative possibility to check consistency between data an a hypothesized causal structure is to examine implied (conditional) independencies. A comparison of figures (1a) and (1b) shows that D should be independent of P given E and L ($D \bot P | L$) for figure (1a) and $D \bot P | E, $for figure (1b), which is the case for our data. However, only figure (1a) but not (1b) implies independence of L and E ($E \bot L$) in the study sample (in (1a) the path between exposure $E$ and participation predictor $L$ is closed by conditioning on P). Because $E$ and  $L$ are in fact dependent in the study sample, the analysis of implied conditional independencies shows that the causal structure in (1b) is a better description of the data obtained from MoBa participants. Therefore, even without the additional information from genetic correlations, the available evidence suggests that the causal structure in figure (1b) rather than (a) describes our data better. (Which implies that adjustment for participation predictors will not control bias).
+An alternative possibility to check consistency between data an a hypothesized causal structure is to examine implied (conditional) independencies. A comparison of Figures \emph{1a} and \emph{1b} shows that disorder $D$ should be independent of participation $P$ given exposure $E$ and participation predictors $L$ ($D \bot P|E,L$) for \emph{1a} and $D \bot P | E$ for \emph{1b}. Both conditional independencies are present in our data. However, only \emph{1a} and not \emph{1b} implies independence of $L$ and $E$ ($E \bot L$) in the study population (in \emph{1a} only conditioning on $P$ opens a path between $E$ and $L$). To evaluate the association between $E$ and $L$ in the population one can either calculate weighted correlations between these variables using the study sample, or investigate auxiliary data. Weighted correlations between $E$ and $L$ were with a few exceptions substantial. 
+
+Because $E$ and $L$ are in fact dependent in the study sample, the analysis of implied conditional independencies shows that the causal structure in \emph{1b} is a better description of the data obtained from MoBa participants. Therefore, even without the additional information from genetic correlations, the available evidence suggests that the causal structure in \emph{1b} rather than \emph{1a} describes our data better. (Which implies that adjustment for participation predictors will not reduce selection bias).
 
 
 
