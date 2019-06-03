@@ -30,7 +30,7 @@
 
 \usepackage{csquotes}
 \usepackage[backend=bibtex,
-            style=Nature,
+            style=nature,
             sorting=none,
             autocite=superscript]{biblatex}
 \addbibresource{references/biblio.bib}
@@ -41,6 +41,10 @@
 
 
 \renewcommand{\baselinestretch}{2.0}
+
+\renewcommand{\thefigure}{S\arabic{figure}}
+\renewcommand{\thetable}{S\arabic{table}}
+
 
 
 \begin{document}
@@ -53,16 +57,16 @@
 
 For the population data obtained from statistics Norway (SSB), two types of missing data needed to be imputed: 
 \begin{enumerate}
-	\item For small sub-groups, SSB did not provide counts for education subgroups (given a certain age-group and number of children) with fewer than 5 members (0.23\%). Instead SSB provided the total number of individuals in this subgroup and the next-largest education subgroup (with the same age and number of children). We re-redistributed the individual with withhold education-level based on a negative-binomial regression of count on age group and number of children.
+	\item For small sub-groups, SSB did not provide counts for education subgroups with fewer than 5 members given a certain age-group and number of children (0.23\%). Instead SSB provided the total number of individuals in this subgroup and the next-largest education subgroup (with the same age and number of children). We re-redistributed the individuals with withhold education-level based on a negative-binomial regression of count on age group and number of children.
 	\item After this first imputation step, we imputed the education-level for individuals for which SSB had no information about their education (3.9\%). We re-distributed, for each subgroup formed by maternal age-group and number of children, the individuals with unknown education to the educational levels, proportional to the frequency of the known educational levels. 
 \end{enumerate}
 
 \paragraph{Inverse probability weights} 
-Inverse probability weights were calculated based on a hierarchical binomial regression, where participation rates were estimated as an effect of mothers' age, education, and parity,  whereby the intercept as well as linear and non-linear (square) effects of mothers' age were allowed to vary by education and parity. 10-fold cross validation (using the package R package loo \cite{Vehtari2017-ne}) confirmed that this model did not over-fit the data. Following general recommendations we calculated stabilised weights \cite{Seaman2013-rj}. We calculated weights separately for imputed data sets and used a Two-Step Bayesian procedure \cite{Zigler2016-od} to incorporate uncertainty about weights into the regression analysis. That is, we used the posterior distribution of the selection model to generate for each imputed data set a multidimensional distribution of predicted participation probabilities (multidimensional in that one obtains for each sample from the posterior distribution a set of predictions for all population subgroups). During the estimation of the exposure outcome associations, we used for each iteration a new set of weights randomly drawn from the distribution of predicted participation probabilities.
+Inverse probability weights were calculated based on a hierarchical binomial regression, where participation rates were estimated as an effect of mothers' age, education, and parity.  The intercept as well as linear and non-linear (square) effects of mothers' age were allowed to vary by education and parity. 10-fold cross validation (using the package R package loo \cite{Vehtari2017-ne}) confirmed that this model did not over-fit the data. Following general recommendations we calculated stabilised weights \cite{Seaman2013-rj}. We calculated weights separately for imputed data sets and used a Two-Step Bayesian procedure \cite{Zigler2016-od} to incorporate uncertainty about weights into the regression analysis. That is, for each imputed data set we used the posterior distribution of model parameters and the data to calculate 2000 sets of participation probabilities, from which we then calculated 2000 sets of weights. During the estimation of the exposure outcome associations, which we again did for each of the 20 imputed data sets, we used for each iteration a new set of randomly chosen weights for the IPPW model.
 
 
 \paragraph{Estimation of exposure outcome associations and lower bound selection bias magnitude} 
-We implemented beta-binomial regression models in the probabilistic programming language Stan \cite{Carpenter2017-gd, Stan_Development_Team2017-lp}. The beta-binomial distribution is the natural choice for sum scores as outcome, which are bound between zero and an upper bound. Stan also allows simultaneous estimation of a regression model that uses inverse probability of participation weights (IPPW) and others that do not but adjusts for participation predictors (AR, UR), while explicitly modeling the difference (bias) between the models' regression parameters.
+We implemented beta-binomial regression models in the probabilistic programming language Stan \cite{Carpenter2017-gd, Stan_Development_Team2017-lp}. The beta-binomial distribution is the natural choice for sum scores as outcome, which are bound between zero and an upper bound. Stan also allows simultaneous estimation of a regression model that uses inverse probability of participation weights (IPPW) and others that do not but adjusts for participation predictors (AR) or neither use weights not adjust (UR), while explicitly modeling the difference (bias) between the models' regression parameters.
 
 \begin{table}
 	\centering
@@ -80,7 +84,7 @@ We implemented beta-binomial regression models in the probabilistic programming 
 	\label{tab:regmodels}
 \end{table}
 
-\paragraph{Comparison of exposure outcome association estimates} The statistical model directly estimates selection bias by modeling regression coefficients for AR (UR) as the coefficients for IPPW plus the difference between the IPPW and the AR (UR) coefficients. This approach accounts for covariation between regression weights when estimating bias. The ADHD sum scores are modeled as  $S = beta$-$binomial(\alpha,\beta)$, where $\alpha = \pi\phi$, $\beta = (1-\pi)\phi$, and $\phi$ is the over-dispersion parameter of the beta-binomial distribution. The expected sum score is defined as 
+\paragraph{Comparison of exposure outcome association estimates} The statistical model directly estimates selection bias by modeling regression coefficients for AR (UR) as the coefficients for IPPW plus the difference between the IPPW and the AR (UR) coefficients. This approach accounts for covariation between regression weights when estimating bias. The ADHD sum scores are modeled as  $S = beta$-$binomial(\alpha,\beta)$, where $\alpha = \pi\phi$, $\beta = (1-\pi)\phi$, and $\phi$ is the over-dispersion parameter of the beta-binomial distribution. The expected proportion of the maximal sum score is 
 \newline
 $\mathbf{\pi}_{IPPW} = logit^{-1}(\mathbf{X} \beta_{IPPW})$ 
 \newline
@@ -90,14 +94,14 @@ where \textbf{X} is a matrix containing exposures of interest and adjustment var
 \newline
 $\mathbf{\pi}_{UR} = logit^{-1}(\mathbf{X^E} \big( \beta^E_{IPPW} + \delta_{UR} \big))$
 \newline
-where $^E$ indicates that only exposure variables are considered.
+where $^E$ indicates that only exposure but no adjustment variables are considered.
 
-Because coefficients of a beta-binomial regressions are on the less intuitive multiplicative scale, we used the marginal standardization approach \cite{Muller2014-bh} to calculate average marginal effects ($AME$), the expected change in the outcome ADHD sum score for a one unit change of the exposure, and report results on this scale.
+Because coefficients of a beta-binomial regressions are on the less intuitive multiplicative scale, we to calculated average marginal effects ($AME$), the expected change in the outcome ADHD sum score for a one unit change of the exposure, and report results on this scale.
 
 We test for bias by using a region of practical equivalence approach (ROPE)\cite{Kruschke2010-zi}, which checks if the highest density region of the bias estimates lies within a region of bias magnitudes that is for practical purposes equivalent with zero. This approach also allows quantifying the risk for substantial bias as the ratio of the posterior probabilities of the bias estimate being inside and outside the ROPE. More specifically, if $\delta_s$ is the posterior distribution of the standardised bias and $|\delta_s|$ its absolute value, then $RR_b =  \frac{P(|\delta_s|>0.5)}{P(|\delta_s|<0.5)}$. To put this statistic on the same scale as the better known log odds ratios, we can report the log of the risk ration, $log(RR_b)$, which can also directly be obtained as  $log(RR_b) = logit(P(|\delta_s|>0.5))$. 
-More intuitively, the starting point for this statistic is that we can use posterior distributions from a Bayesian analysis to obtain the probability (Risk) that the bias-magnitude is inside or outside the interval from -0.5 to +0.5. By dividing these two probabilities, we obtain a risk ratio ($RR$) that the bias-magnitude ($RR_b$) is larger than 0.5. Finally, we take the logarithm of $RR_b$, which we call $log(RR_b)$. 
+More intuitively, the starting point for this statistic is that we can use posterior distributions from a Bayesian analysis to obtain the probability (Risk) that the bias-magnitude is inside or outside the interval from $-0.5$ to $+0.5$. By dividing these two probabilities, we obtain a risk ratio ($RR$) that the bias-magnitude ($RR_b$) is larger than 0.5. Finally, we take the logarithm of $RR_b$, which we call $log(RR_b)$. 
 
-Which range of selection bias can be considered as unproblematic can be judged by subject matter experts. Alternatively, the bias estimate can be standardised by dividing it by the variance of the "gold standard" estimate \cite{Stuart2010-cj}, here the IPPW estimate, which corrects selection bias. A complementary approach is to divide the bias estimate with the mean of the corrected estimate, capturing the intuition that deviations matter less if they are small compared to the corrected estimate. We define the interval of $\pm$ 0.5 standardised deviations as practically equivalent with zero. This sets a high threshold for determining the presence of a problematic bias. In other contexts, different thresholds might be appropriate.
+Which range of selection bias can be considered as unproblematic is best judged by subject matter experts. Alternatively, the bias estimate can be standardised by dividing it by the variance of the "gold standard" estimate \cite{Austin2009-ol}, here the IPPW estimate, which corrects selection bias. A complementary approach is to divide the bias estimate with the mean of the corrected estimate, capturing the intuition that deviations matter less if they are small compared to the corrected estimate. Based on previous literature \cite{Nilsen2009-ci, Austin2009-ol} We define the interval of $\pm$ 0.5 standardised deviations as practically equivalent with zero. This sets a high threshold for determining the presence of a problematic bias. In other contexts, different thresholds might be appropriate.
 
 \paragraph{MCMC estimation} 
 We used following priors:
@@ -109,7 +113,7 @@ We used following priors:
 \end{itemize}
 
 
-Regression models were estimated with Hamiltonian Monte Carlo sampling as implemented in Stan. For each regression, 3 chains were sampled for 20 imputed data sets. Each chain consisted of 250 warmup samples and an additional 500 iterations that were used to calculate statistics. We checked convergence of the 3 chains per imputed data sets by insuring that \^{R} values were below 1.1 \cite{Gelman1992-jz}, and no divergent transitions had occurred \cite{Stan_Development_Team2016-pc}. All parameters of all models successfully converged, as indicated by \^{R} values below 1.1. We thus merged all chains prior to calculating statistics \cite{Zhou2010-li} such that reported results are based on 30,000 (20 imputed data sets $\cdot$ 3 chains $\cdot$ 500 iterations) combined post-warmup samples.
+Regression models were estimated with Hamiltonian Monte Carlo sampling as implemented in Stan \cite{Stan_Development_Team2017-lp, Stan_Development_Team_2018-rs} For each regression, 3 chains were sampled for 20 imputed data sets. Each chain consisted of 250 warmup samples and an additional 500 iterations that were used to calculate statistics. We checked convergence of the 3 chains per imputed data sets by insuring that \^{R} values were below 1.1 \cite{Gelman1992-jz}, and no divergent transitions had occurred \cite{Stan_Development_Team2016-pc}. All parameters of all models successfully converged, as indicated by \^{R} values below 1.1. We thus merged all chains prior to calculating statistics \cite{Zhou2010-li} such that reported results are based on 30,000 (20 imputed data sets $\cdot$ 3 chains $\cdot$ 500 iterations) combined post-warmup samples.
 
 \newpage
 
@@ -123,7 +127,7 @@ Regression models were estimated with Hamiltonian Monte Carlo sampling as implem
 	\input{tables/estimates-UR.tex}
 	\caption{Means and 90\% HDIs of exposures outcome associations and standardised bias of the UR results.
 		$AME_{IPPW}$, $AME_{UR}$: Average marginal effects from IPPW, and UR models, respectively. $\sigma_{IPPW}$ and $\mu_{IPPW}$ are standard deviation and mean of the posterior distribution of the IPPW regression coefficients. } 
-	\label{table:estimates-UR}
+	\label{tab:estimates-UR}
 \end{sidewaystable}
 \newpage
 
@@ -132,14 +136,14 @@ Regression models were estimated with Hamiltonian Monte Carlo sampling as implem
 \begin{figure}[H]
 	\centering
 	\input{figures/prop_moba_ssb}
-	\caption{\footnotesize Mosaic plots of proportions of different sub-groups in the target population (top) and the study sample(bottom). The square-areas indicate what proportion of the total number belongs to different subgroups. HS = High school.}
+	\caption{\footnotesize Mosaic plots of proportions of different sub-groups in the target population (top) and the study sample (bottom). The square-areas indicate what proportion of the total number belongs to different subgroups. HS = High school.}
 	\label{fig:prop_moba_ssb}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
 	\input{figures/coverage}
-	\caption{\footnotesize Proportion of the target population included in the study sample, stratified by maternal age and education. $Coverage = N_{study sample}/N_{target population}$.}
+	\caption{\footnotesize Percent of the target population included in the study sample, stratified by maternal age and education. $Coverage = N_{study sample}/N_{target population}$.}
 	\label{fig:coverage}
 \end{figure}
 
@@ -147,20 +151,23 @@ Regression models were estimated with Hamiltonian Monte Carlo sampling as implem
 \begin{figure}[H]
 	\centering
 	\input{figures/ADHD_sumscore}
-	\caption{\footnotesize Distribution of ADHD sum score calculated from mother reported ADHD symptoms.}
+	\caption{\footnotesize Distribution of child ADHD sum score calculated from mother reported ADHD symptoms.}
 	\label{fig:ADHDsumscore}
 \end{figure}
 
 \begin{figure}[H]
 	\centering \input{figures/covariation.tex}
-	\caption{Correlation of variables. Colors represent positive (red) and negative (blue) correlations. Darker colors signify stronger correlations (see color key). Note the negative correlations between clusters of risk factors (drinking, smoking, drug use, depressive symptoms) and protective factors (parents\textquotesingle \space education and age). The correlation of the  demographic variables age and education, which also participation predictors in the MoBa (c.f. Table \ref{table:age_edu}), with a number of exposure variables suggests the presence of selection bias in analysis that do not account for self-selection into the MoBa}
+	\caption{Correlation of variables in the study sample. Colors represent positive (red) and negative (blue) correlations. Darker colors signify stronger correlations (see color key). Note the negative correlations between clusters of risk factors (drinking, smoking, drug use, depressive symptoms) and protective factors (parents\textquotesingle \space education and age).}
 	\label{fig:covariation}
 \end{figure}
 
 
 \begin{figure}[H]
 	\centering
-    \input{figures/IPW}	
+	\resizebox{.44\textheight}{!}{
+		\input{figures/IPW}
+	}
+    	
 	\caption{Selection model fit and smoothed inverse probability weights. Top panel: Scatter plot of predicted and observed participation rates based on a binomial regression model $Participation \sim 1 + (1 + Age + Age^2 | Education:Parity)$. $N_{SSB}$ indicates the number of mothers in different population subgroups that gave birth in between 2001 and 2009 in Norway, according to statistics Norway. Mothers' education is the key predictor of continued participation. The size of the dots indicates the relative size of a group in the population. Bottom panel: Overlay-ed histograms of smoothed inverse probability weights for 20 imputed data sets.}
 	\label{fig:IPW}
 \end{figure}
@@ -179,7 +186,7 @@ Regression models were estimated with Hamiltonian Monte Carlo sampling as implem
 	\adjustbox{width=\textwidth}{
 		\centering \input{figures/logRRs-AR.tex}
 	}
-	\caption{Evidence for and against selection bias in an adjusted regression (AR). To obtain a measure of evidence for or against selection bias, we compare how much of the posterior distribution of the difference between the IPPW and AR estimates fall within vs fall outside the region of practical equivalence: $log(RR_b) = logit(\int_{-.5}^{.5}\delta)$. Categorization into positive, strong, or very strong evidence is based on \cite{Kass1995-uv}. Standard deviation (mean) standardised bias estimates are shown in in blue (black).} 
+	\caption{Evidence for and against selection bias in an adjusted regression (AR). To obtain a measure of evidence for or against selection bias, we compare how much of the posterior distribution of the difference between the IPPW and AR estimates fall within vs. outside the region of practical equivalence: $log(RR_b) = logit(\int_{-.5}^{.5}\delta)$. Categorization into positive, strong, or very strong evidence is based on \cite{Kass1995-uv}. Standard deviation (mean) standardised bias estimates are shown in in blue (black).} 
 	\label{fig:logRRsAR}
 \end{figure}
 
@@ -187,7 +194,7 @@ Regression models were estimated with Hamiltonian Monte Carlo sampling as implem
 	\adjustbox{width=\textwidth}{
 		\centering \input{figures/logRRs-UR.tex}
 	}
-	\caption{Evidence for and against selection bias in an unadjusted regression (UR). To obtain a measure of evidence for or against selection bias, we compare how much of the posterior distribution of the difference between the IPPW and UR estimates fall within vs fall outside the region of practical equivalence: $log(RR_b) = logit(\int_{-.5}^{.5}\delta)$. Categorization into positive, strong, or very strong evidence is based on \cite{Kass1995-uv}. Standard deviation (mean) standardised bias estimates are shown in in blue (black).} 
+	\caption{Evidence for and against selection bias in an unadjusted regression (UR). To obtain a measure of evidence for or against selection bias, we compare how much of the posterior distribution of the difference between the IPPW and UR estimates fall within vs. outside the region of practical equivalence: $log(RR_b) = logit(\int_{-.5}^{.5}\delta)$. Categorization into positive, strong, or very strong evidence is based on \cite{Kass1995-uv}. Standard deviation (mean) standardised bias estimates are shown in in blue (black).} 
 	\label{fig:logRRsUR}
 \end{figure}
 
@@ -205,7 +212,7 @@ Regression models were estimated with Hamiltonian Monte Carlo sampling as implem
 
 \begin{figure}[H]
 	\centering \input{figures/mEDUcors.tex}
-	\caption{Inverse probability of participation weighted correlations based on MoBa data.}
+	\caption{Inverse probability of participation weighted correlations based on MoBa data. See supplementary discussion for details.}
 	\label{fig:educors}
 \end{figure}
 
@@ -213,11 +220,11 @@ Regression models were estimated with Hamiltonian Monte Carlo sampling as implem
 
 \section{Supplementary discussion}
 \subsection{Implied conditional independencies}
-In the main text we use genetic correlations between exposures and participation predictors to argue that a causal structure in which these variables are correlated in the study sample is more plausible than a causal structure in which these variables are uncorrelated in the study sample. This is a central argument, because only if this is that case, is inverse probability weighting  superior to adjusting for participation predictors.
+In the main text we use \emph{genetic correlations} between exposures and participation predictors to argue that a causal structure in which these variables are correlated in the population is more plausible than a causal structure in which these variables are uncorrelated. This is a central argument, because only if exposures and participation predictors are correlated in the population, can inverse probability weighting be superior to adjusting for participation predictors. More specifically, given the presence of a common unobserved cause of participation predictors $L$ and the outcome $D$ ($L \leftarrow U \rightarrow D$), IPPW is superior when $E$ and $L$ have an unobserved common cause ($E \leftarrow U^* \rightarrow L$) , or when $E$ causes $L$ ($E \leftarrow L$). When $L$ causes $E$, or there is no direct relationship between $L$ and $E$, AR is superior.
 
-An alternative possibility to check consistency between data an a hypothesized causal structure is to examine implied (conditional) independencies. A comparison of Figures \emph{1a} and \emph{1b} shows that disorder $D$ should be independent of participation $P$ given exposure $E$ and participation predictors $L$ ($D \bot P|E,L$) for \emph{1a} and $D \bot P | E$ for \emph{1b}. Both conditional independencies are present in our data. However, only \emph{1a} and not \emph{1b} implies independence of $L$ and $E$ ($E \bot L$) in the study population (in \emph{1a} only conditioning on $P$ opens a path between $E$ and $L$). To evaluate the association between $E$ and $L$ in the population one can either calculate weighted correlations between these variables using the study sample, or investigate auxiliary data. Weighted correlations between $E$ and $L$ were with a few exceptions substantial. 
+As an alternative to \emph{genetic correlations} one can uses implied (conditional) independencies to check consistency between data an a hypothesized causal structure. The analysis of Figures \emph{1a} and \emph{1b} shows that disorder $D$ should be independent of participation $P$ given exposure $E$ and participation predictors $L$ ($D \bot P|E,L$) for \emph{1a} and $D \bot P | E$ for \emph{1b}. Both conditional independencies are present in our data. However, only Figure \emph{1a} and not \emph{1b} implies independence of $L$ and $E$ ($E \bot L$) in the study population (in \emph{1a} only conditioning on $P$ opens a path between $E$ and $L$). To evaluate the association between $E$ and $L$ in the population one can either calculate weighted correlations between these variables using the study sample, or investigate auxiliary data. Figure \ref{fig:educors} shows that weighted correlations between $E$ and $L$ were with a few exceptions substantial. 
 
-Because $E$ and $L$ are in fact dependent in the study sample, the analysis of implied conditional independencies shows that the causal structure in \emph{1b} is a better description of the data obtained from MoBa participants. Therefore, even without the additional information from genetic correlations, the available evidence suggests that the causal structure in \emph{1b} rather than \emph{1a} describes our data better. (Which implies that adjustment for participation predictors will not reduce selection bias).
+Because $E$ and $L$ are dependent in the study sample, the analysis of implied conditional independencies shows that the causal structure in \emph{1b} is a better description of the data obtained from MoBa participants. Therefore, even without the additional information from genetic correlations, the available evidence suggests that the causal structure in \emph{1b} rather than \emph{1a} describes our data better. (Which implies that adjustment for participation predictors will not reduce selection bias).
 
 
 
