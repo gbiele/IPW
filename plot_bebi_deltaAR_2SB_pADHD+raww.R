@@ -578,7 +578,7 @@ for (r in c("ar", "raw")) {
        yaxt = "n", bty = "n", xaxt = "n")
   rect(-log(3),par("usr")[3],log(3),par("usr")[4],col = "gray88", border = NA)
   xticks = sort(c(-log(c(3,10,30,100)),log(c(3,10,30,100))))
-  axis(1,at = xticks, labels = exp(abs(xticks)))
+  axis(1,at = xticks, labels = exp(abs(xticks))*sign(xticks))
   abline(v = xticks,lty = 3, col = "grey")
   
   #abline(v = 0,col = "red",lwd = 2)
